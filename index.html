@@ -964,7 +964,7 @@ function buildLevels(){const el=document.getElementById('cards');el.innerHTML=''
 const PAUSE_FADE=40000;let pauseAt=0;
 function pauseFade(on){mn.classList.toggle('pz',on);pauseAt=on?performance.now():0;document.getElementById('pfade').style.opacity='0'}
 function pauseFadeTick(t){if(!pauseAt||ui!=='pause')return;const k=Math.min(1,(t-pauseAt)/PAUSE_FADE);document.getElementById('pfade').style.opacity=(k*k).toFixed(3)}
-function showUi(n){if(n!=='pause')pauseFade(false);else if(ui!=='pause')pauseFade(true);if(n==='pause'){$('b-lvl').hidden=isHub();$('b-rst').hidden=isHub()}ui=n;paused=true;if(n!=='pause')setTrack(bgmMenu);else if(bgmPause)setTrack(bgmPause);mn.hidden=false;secs.forEach(s=>s.hidden=s.id!=='s-'+n);if(n==='levels')buildLevels();if(n==='loadout')buildLoadout();if(n==='gunsmith')buildGunsmith();if(n==='save')buildSave();setTimeout(()=>{const b=mn.querySelector('.sec:not([hidden]) button');if(b)b.focus()},0)}
+function showUi(n){if(n!=='pause')pauseFade(false);else if(ui!=='pause')pauseFade(true);if(n==='pause'){$('b-lvl').hidden=isHub();$('b-rst').hidden=isHub()}ui=n;paused=true;if(n==='pause'){if(bgmPause)setTrack(bgmPause)}else if(!(fromHub&&isHub()))setTrack(bgmMenu);mn.hidden=false;secs.forEach(s=>s.hidden=s.id!=='s-'+n);if(n==='levels')buildLevels();if(n==='loadout')buildLoadout();if(n==='gunsmith')buildGunsmith();if(n==='save')buildSave();setTimeout(()=>{const b=mn.querySelector('.sec:not([hidden]) button');if(b)b.focus()},0)}
 function hideUi(){pauseFade(false);const wasPause=ui==='pause';mn.hidden=true;paused=false;ui='play';if(wasPause&&bgmPause)setTrack(LEVEL_MUSIC[lvl]||null,true)}
 function showMain(){fromHub=false;showUi('main')}
 /* ---- Level 2: Library ---- */
@@ -2065,7 +2065,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-030614';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-030959';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
