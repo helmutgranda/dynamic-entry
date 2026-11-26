@@ -184,6 +184,7 @@ clip-path:polygon(0 3%,4% 0,100% 2%,99% 97%,95% 100%,0 98%)}
 <div id="s-main" class="sec"><h1 class="logo">Dynamic Entry</h1><p>A tactical room-clearing game. Take everyone alive.</p><button id="b-play" class="b" type="button">Play</button><button id="b-load" class="b2" type="button">Loadout</button><button id="b-how" class="b2" type="button">Controls</button><button id="b-save" class="b2" type="button">Progress</button><label class="vol">Music volume <input type="range" min="0" max="100" value="30" class="mvol" aria-label="Music volume"></label></div>
 <div id="s-save" class="sec" hidden><h2>Progress</h2><p>Your progress saves automatically in this browser and stays when the game is updated.</p>
 <p id="sv-stats" class="sv-stats"></p><div id="sv-list" class="sv-list"></div>
+<div id="cl-box" class="sv-box" hidden><div class="lo-h">Cloud save</div><p id="cl-status" class="sv-hint" role="status"></p><div class="sv-btns"><button id="cl-google" class="b2" type="button" hidden>Sign in with Google</button><button id="cl-out" class="b2" type="button" hidden>Sign out</button></div></div>
 <div class="sv-box"><div class="lo-h">Move or back up your progress</div><p class="sv-hint">Copy your save code to keep a backup, or paste a code from another browser or device to load that progress here.</p>
 <div class="sv-btns"><button id="sv-copy" class="b2" type="button">Copy save code</button><button id="sv-load" class="b2" type="button">Load pasted code</button></div>
 <label for="sv-code" class="sv-lab">Save code</label><textarea id="sv-code" rows="3" spellcheck="false" placeholder="Paste a save code that starts with DE1-"></textarea><p id="sv-msg" class="sv-msg" role="status"></p></div>
@@ -916,7 +917,9 @@ function saveMigrate(o){if(!o||typeof o!=='object')o={};const b=saveBlank();for(
 if((o.v||0)<SAVE_V)o.v=SAVE_V;return o}
 function saveRead(key){try{const t=localStorage.getItem(key);return t?JSON.parse(t):null}catch(e){return null}}
 let SAVE=(()=>{let o=saveRead('de_save')||saveRead('de_save_bak');const fresh=!o;o=saveMigrate(o);if(fresh){try{if(localStorage.getItem('cth_tut')==='1')o.tut=true}catch(e){}}return o})();
-function saveWrite(){try{const t=JSON.stringify(SAVE),prev=localStorage.getItem('de_save');if(prev&&prev!==t)localStorage.setItem('de_save_bak',prev);localStorage.setItem('de_save',t);if(SAVE.tut)localStorage.setItem('cth_tut','1')}catch(e){}}
+let onSaved=null;
+function saveWriteLocal(){try{const t=JSON.stringify(SAVE),prev=localStorage.getItem('de_save');if(prev&&prev!==t)localStorage.setItem('de_save_bak',prev);localStorage.setItem('de_save',t);if(SAVE.tut)localStorage.setItem('cth_tut','1')}catch(e){}}
+function saveWrite(){saveWriteLocal();if(onSaved)onSaved()}
 saveWrite();done=!!SAVE.tut;
 function lvRec(i){return SAVE.lv[i]||null}
 function recordWin(i,fin,rk,clean){const r=SAVE.lv[i]||(SAVE.lv[i]={best:0,rank:'',clears:0,clean:0});const first=!r.clears,nb=first||fin>r.best;if(nb){r.best=fin;r.rank=rk}r.clears++;if(clean)r.clean++;r.last=Date.now();SAVE.st.runs++;SAVE.st.wins++;if(clean)SAVE.st.clean++;if(i===0)SAVE.tut=true;saveWrite();return nb&&!first}
@@ -931,7 +934,7 @@ try{const prev=localStorage.getItem('de_save');if(prev)localStorage.setItem('de_
 function buildSave(){const st=SAVE.st,ls=lv.map((l,i)=>[l,lvRec(i)]).filter(q=>q[1]&&q[1].clears),el=$('sv-list');el.innerHTML='';
 if(!ls.length){const d=document.createElement('p');d.className='sv-empty';d.textContent='No missions cleared yet. Clear one and your best score and rank are saved here.';el.appendChild(d)}
 for(const[l,r]of ls){const row=document.createElement('div');row.className='sv-row';row.innerHTML='<b></b><span></span>';row.querySelector('b').textContent=l.n;row.querySelector('span').textContent='Best '+r.best+' · Rank '+r.rank+' · Cleared '+r.clears+'× · '+r.clean+' without lethal force';el.appendChild(row)}
-$('sv-stats').textContent=st.runs+' missions played · '+st.wins+' won · '+st.losses+' lost';$('sv-msg').textContent='';$('sv-code').value=''}
+clButtons();if(cloud.msg)$('cl-status').textContent=cloud.msg;$('sv-stats').textContent=st.runs+' missions played · '+st.wins+' won · '+st.losses+' lost';$('sv-msg').textContent='';$('sv-code').value=''}
 function tutLine(i){const T=LO.tool;if(i===1)return T==='ram'?'Press 3 for the ram, then E at the door.':T==='breach'?'Press 3 for the breach shotgun and shoot the door.':'No breacher: hold E at the door to kick.';if(i===2)return T==='ram'?'Time your swings: E, Space or click.':T==='breach'?'Shoot again to break it (or G through the hole).':'Release E in the green. Kick until it gives.';if(i===4)return 'Press U at a closed door to use the mirrorgun.';return tutTxt[i]}
 const tutTxt=['Walk to the front door (WASD).','Press E at the door to stack up.','Time your swings: E, Space or click.','Inside, press T by a switch for light.','Press U at a closed door to use the mirrorgun.','Press Q at a door: Flash and clear.','Stun with a click, then press E to cuff.','Free hostages with E, then cuff them too.','E to escort, then E at a police car.'];
 function tutDone(i){const d=doors[6];switch(i){case 0:return Math.hypot(p.x-40,p.y-260)<60||!!stk||d.broken;case 1:return !!stk||!!kick||!!brc||!!d.hole||d.broken;case 2:return d.broken;case 3:return !!tutF.lit;case 4:return LO.tool!=='mirror'||!!tutF.udc;case 5:return !!tutF.op;case 6:return !!tutF.cuff;case 7:return !!tutF.hcuff;case 8:return !!tutF.load||won;default:return won}}
@@ -1232,7 +1235,7 @@ function supP(){return !!(LO.sup&&LO.sup[LO.prim])}
 function supS(){return LO.side==='pistol'&&!!(LO.sup&&LO.sup.pistol)}
 function loCap(){return LO.side==='none'?5:4}
 function loUsed(){return POUCH.reduce((a,o)=>a+LO.p[o.id],0)}
-function loSave(){try{localStorage.setItem('cth_loadout',JSON.stringify(LO))}catch(e){}}
+function loSave(){try{localStorage.setItem('cth_loadout',JSON.stringify(LO))}catch(e){}if(onSaved)onSaved();}
 function loFix(){if(LO.side==='none')LO.p.mag=0;for(const k of ['gs','mk','sh','fb','mag'])while(loUsed()>loCap()&&LO.p[k]>0)LO.p[k]--}
 function applyLoadout(){loFix();const AR=LO.prim==='ar15';SG_CAP=AR?30:LO.prim==='m37'?5:6;ammo=SG_CAP;if(AR)sRes=90;const a=ARMOR.find(q=>q.id===LO.armor)||ARMOR[1];LO_SPD=a.spd;LO_DMG=a.dmg;fbs+=LO.p.fb;sRes+=LO.p.sh*(AR?30:6);kits+=LO.p.mk;nStick+=LO.p.gs*4;PCAP=LO.side==='magnum'||LO.side==='pepper'?6:12;pAmmo=PCAP;if(LO.side!=='none')mags+=LO.p.mag;else{mags=0;pAmmo=0;if(wep===2)wep=1}}
 function loSummary(){const a=ARMOR.find(q=>q.id===LO.armor);return 'Deploying with '+({ram:'a battering ram',breach:'a breach shotgun',mirror:'a mirrorgun'}[LO.tool])+', '+(a.id==='std'?'standard armor':a.n.toLowerCase())+', '+(LO.prim==='ar15'?'an AR-15':LO.prim==='m37'?'the lethal M37 Featherweight':'the beanbag shotgun')+(LO.laser==='none'?(supP()?' with a suppressor':''):' with a '+LO.laser+' laser'+(supP()?' and a suppressor':''))+' loaded with '+(AMMO[LO.prim].find(o=>o.id===loAmmo()).n.toLowerCase())+' ('+(LO.prim==='ar15'?(90+LO.p.sh*30)+' spare rounds':(12+LO.p.sh*6)+' spare shells')+'), '+(LO.side==='pistol'?'a '+(supS()?'suppressed ':'')+'Glock-19 with '+(3+LO.p.mag)+' spare mags, ':LO.side==='magnum'?'a .44 Magnum with '+(3+LO.p.mag)+' speedloaders, ':LO.side==='pepper'?'a PB-50 pepper pistol with '+(3+LO.p.mag)+' spare mags, ':'no sidearm, ')+(2+LO.p.fb)+' flashbangs, '+(3+LO.p.mk)+' medkits and '+(8+LO.p.gs*4)+' glow sticks.'}
@@ -1252,6 +1255,54 @@ if(focusKey){const b=document.querySelector('#s-loadout [data-k="'+focusKey+'"]'
 $('b-load').onclick=()=>showUi('loadout');$('b-save').onclick=()=>showUi('save');$('b-back6').onclick=showMain;
 $('sv-copy').onclick=()=>{const code=saveExport(),ta=$('sv-code');ta.value=code;const ok=()=>{$('sv-msg').textContent='Save code copied. Keep it somewhere safe, or paste it into the game on another device.'},fb=()=>{ta.focus();ta.select();$('sv-msg').textContent='Your save code is in the box. Select it and copy it.'};try{navigator.clipboard.writeText(code).then(ok,fb)}catch(e){fb()}};
 let svArm=0;$('sv-load').onclick=()=>{const code=$('sv-code').value;if(!code.trim()){$('sv-msg').textContent='Paste a save code into the box first.';return}if(Date.now()-svArm>6000){svArm=Date.now();$('sv-msg').textContent='This replaces the progress in this browser with the code\'s progress. Click "Load pasted code" again to confirm.';return}svArm=0;try{saveImport(code);$('sv-msg').textContent='Progress loaded. Restarting the game...';setTimeout(()=>location.reload(),700)}catch(e){$('sv-msg').textContent=e.message}};$('b-back3').onclick=()=>{if(fromHub&&isHub()){fromHub=false;resumeHub()}else showMain()};
+/* ---- Cloud save (Firebase) ----
+   Every player gets a Firebase account automatically (anonymous sign-in), so their progress is backed up
+   online. Signing in with Google links that account, so the same progress loads on any device.
+   The cloud copy is players/{uid} in Firestore. Each sync reads it, merges it with this browser's save
+   (keeping the best of both: highest score per mission, highest counters) and writes the result back
+   in one transaction, so two devices can never overwrite each other's progress.
+   This browser's save keeps working on its own whenever the cloud is unreachable.
+   To turn it on, paste the web app config from the Firebase console into FB_CONFIG. */
+const FB_CONFIG=null;
+const FB_VER='10.12.2';
+const cloud={on:false,user:null,db:null,synced:false,busy:false,again:false,timer:0,msg:''};
+function clStatus(t){cloud.msg=t;const el=document.getElementById('cl-status');if(el)el.textContent=t;clButtons()}
+function clButtons(){const box=document.getElementById('cl-box');if(!box)return;box.hidden=!FB_CONFIG;const named=!!(cloud.user&&!cloud.user.isAnonymous);$('cl-google').hidden=!cloud.on||named;$('cl-out').hidden=!named}
+function clLoad(src){return new Promise((res,rej)=>{const t=document.createElement('script');t.src=src;t.onload=res;t.onerror=()=>rej(new Error('Could not load '+src));document.head.appendChild(t)})}
+function saveMerge(a,b){const o=saveMigrate(JSON.parse(JSON.stringify(a||{}))),c=saveMigrate(JSON.parse(JSON.stringify(b||{})));
+for(const k in c)if(o[k]===undefined)o[k]=c[k];o.v=Math.max(o.v||0,c.v||0);o.tut=!!(o.tut||c.tut);o.since=Math.min(o.since||Date.now(),c.since||Date.now());
+for(const k in c.st)o.st[k]=Math.max(+o.st[k]||0,+c.st[k]||0);
+for(const i in c.lv){const x=o.lv[i],y=c.lv[i];if(!y)continue;if(!x){o.lv[i]=y;continue}const yb=(+y.best||0)>(+x.best||0);o.lv[i]=Object.assign({},y,x,{best:Math.max(+x.best||0,+y.best||0),rank:yb?y.rank:x.rank,clears:Math.max(+x.clears||0,+y.clears||0),clean:Math.max(+x.clean||0,+y.clean||0),last:Math.max(+x.last||0,+y.last||0)})}
+return o}
+function clOk(){const u=cloud.user;clStatus(u&&!u.isAnonymous?'Signed in as '+(u.displayName||u.email||'your Google account')+'. Your progress syncs to every device you sign in on.':'Cloud backup is on for this device. Sign in with Google to load your progress on other devices too.')}
+async function cloudSync(){if(!cloud.user||!cloud.db)return;if(cloud.busy){cloud.again=true;return}cloud.busy=true;const fresh=!SAVE.tut&&!SAVE.st.runs;let pulled=null;
+try{const ref=cloud.db.collection('players').doc(cloud.user.uid);
+await cloud.db.runTransaction(async tx=>{const snap=await tx.get(ref),d=snap.exists?snap.data():null;pulled=d;const merged=d&&d.save?saveMerge(SAVE,d.save):SAVE;
+let lo=null,mv=null,sv=null;try{lo=localStorage.getItem('cth_loadout');mv=localStorage.getItem('cth_mvol');sv=localStorage.getItem('cth_svol')}catch(e){}
+if(fresh&&d){if(typeof d.loadout==='string')lo=d.loadout;if(typeof d.mvol==='string')mv=d.mvol;if(typeof d.svol==='string')sv=d.svol}
+const out={save:merged,updated:firebase.firestore.FieldValue.serverTimestamp()};if(lo!==null)out.loadout=lo;if(mv!==null)out.mvol=mv;if(sv!==null)out.svol=sv;tx.set(ref,out);SAVE=merged});
+saveWriteLocal();done=!!SAVE.tut;cloud.synced=true;clOk();if(ui==='save')buildSave();
+/* a brand-new device takes the account's loadout and volume settings, then restarts once to apply them */
+if(fresh&&pulled){let changed=false;try{for(const[k,f]of[['cth_loadout','loadout'],['cth_mvol','mvol'],['cth_svol','svol']])if(typeof pulled[f]==='string'&&localStorage.getItem(k)!==pulled[f]){localStorage.setItem(k,pulled[f]);changed=true}}catch(e){}if(changed&&(ui==='main'||ui==='save'))location.reload()}}
+catch(e){clStatus('Cloud save is unreachable right now. Your progress is still saved in this browser and will sync later.')}
+cloud.busy=false;if(cloud.again){cloud.again=false;cloudSoon()}}
+function cloudSoon(){if(!cloud.synced)return;clearTimeout(cloud.timer);cloud.timer=setTimeout(cloudSync,1500)}
+onSaved=cloudSoon;
+async function cloudGoogle(){const auth=firebase.auth(),prov=new firebase.auth.GoogleAuthProvider();clStatus('Waiting for Google sign-in...');
+try{const u=auth.currentUser;if(u&&u.isAnonymous){await u.linkWithPopup(prov);await u.reload();cloud.user=auth.currentUser;await cloudSync()}else await auth.signInWithPopup(prov)}
+catch(e){if(e.code==='auth/credential-already-in-use'&&e.credential){try{await auth.signInWithCredential(e.credential)}catch(e2){clStatus('Google sign-in did not finish. Your progress is still saved in this browser.')}}
+else if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request')clOk();
+else if(e.code==='auth/popup-blocked')clStatus('Your browser blocked the sign-in window. Allow pop-ups for this site and try again.');
+else clStatus('Google sign-in did not work ('+(e.code||'error')+'). Your progress is still saved in this browser.')}}
+async function cloudInit(){clButtons();if(!FB_CONFIG||!/^https?:$/.test(location.protocol))return;clStatus('Connecting to cloud save...');
+try{const B='https://www.gstatic.com/firebasejs/'+FB_VER+'/';await clLoad(B+'firebase-app-compat.js');await clLoad(B+'firebase-auth-compat.js');await clLoad(B+'firebase-firestore-compat.js');
+firebase.initializeApp(FB_CONFIG);cloud.db=firebase.firestore();cloud.on=true;const auth=firebase.auth();
+auth.onAuthStateChanged(u=>{cloud.user=u;cloud.synced=false;clButtons();if(!u){auth.signInAnonymously().catch(()=>clStatus('Cloud save could not start. Your progress is still saved in this browser.'));return}cloudSync()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cloud.synced)cloudSync()})}
+catch(e){clStatus('Cloud save could not load. Your progress is still saved in this browser.')}}
+$('cl-google').onclick=()=>{if(cloud.on)cloudGoogle()};$('cl-out').onclick=()=>{if(cloud.on){firebase.auth().signOut();clStatus('Signed out. Your progress stays in this browser.')}};
+cloudInit();
+
 /* ---- Gunsmith: side-profile model of the primary; drag lasers / ammo onto it to equip ---- */
 let loLast={k:'',t:0};function loDbl(k){const n=performance.now(),d=loLast.k===k&&n-loLast.t<420;loLast=d?{k:'',t:0}:{k,t:n};return d}
 const GS_ZONES={ar15:{laser:[404,95,92,30],ammo:[266,128,64,86],sup:[566,68,130,32]},m37:{laser:[446,116,86,34],ammo:[200,106,104,48],sup:[580,104,136,28]},bean:{laser:[506,104,72,30],ammo:[244,64,114,46],sup:[580,70,132,28]},glock:{sup:[466,44,178,50]}};
@@ -1666,7 +1717,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261125-213151';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261125-213946';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
