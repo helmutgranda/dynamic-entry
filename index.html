@@ -1474,7 +1474,7 @@ function gasEndLoss(){recordLoss(GAS);const ck=lost.includes('clerk');eT.textCon
 /* ---- the clerk goes for a gun under the counter: quick time event (time slows; type the keys shown before he fires) ---- */
 var QTE_KEYS=['W','A','S','D','E','F','Q','R','G','T'];
 function gasQteStart(){const c=G.clerk,seq=[];while(seq.length<3){const k=QTE_KEYS[Math.floor(Math.random()*QTE_KEYS.length)];if(seq[seq.length-1]!==k)seq.push(k)}
-G.gunDone=1;G.qte={seq,i:0,t0:performance.now(),dur:2300};c.sur=false;gasSay(c,['Get out of my store!','Not tonight!','Back off!'],2.5);shake=Math.max(shake,.4);beep(300);setTimeout(()=>beep(300),120)}
+G.gunDone=1;G.qte={seq,i:0,t0:performance.now(),dur:3000};c.sur=false;gasSay(c,['Get out of my store!','Not tonight!','Back off!'],2.5);shake=Math.max(shake,.4);beep(300);setTimeout(()=>beep(300),120)}
 function gasQteWin(){const c=G.clerk;G.qte=null;c.st='comply';c.sur=true;c.cov=nowS;G.dropGun={x:c.x+16,y:c.y+10,a:Math.random()*6};gasSay(c,['Ow! Okay! Okay!','My hand! Okay!'],1.8);pSay='Nice try.';pSayU=nowS+1.4;shake=Math.max(shake,.3);try{playHit()}catch(e){}}
 function gasQteFail(){const c=G.clerk;G.qte=null;G.act=null;try{playShot()}catch(e){}const a=Math.atan2(p.y-c.y,p.x-c.x);tr.push({x1:c.x+Math.cos(a)*12,y1:c.y+Math.sin(a)*12,x2:p.x,y2:p.y,c:'#ffd24a',u:nowS+.12});
 hp-=Math.round(55*LO_DMG);flash=.6;shake=Math.max(shake,.7);G.shots=true;if(!G.alarm&&!G.shotAlarm)G.shotAlarm=nowS+2.5;
@@ -2344,7 +2344,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-134334';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-134817';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
