@@ -1325,7 +1325,7 @@ cloudInit();
    the host plays those actions out in its world as if that officer did them.
    Network events carry JSON strings. Room names are "DE-" + a 4-letter code that players share.
    Testing without Photon: open the game with ?mp=local and use the same code in two tabs of one browser. */
-const PHOTON_APP_ID='';
+const PHOTON_APP_ID='3942725b-1c92-4c8a-b9e5-b2463bb79c9c';
 const PHOTON_REGION='us';
 const PHOTON_SDK='https://cdn.jsdelivr.net/npm/photon-realtime@4.4.0/photon-realtime-module.js';
 const NC={HELLO:1,ROSTER:2,START:3,SNAP:4,INPUT:5,ACT:6,BYE:7,LOBBY:8,DENY:9};
@@ -1903,7 +1903,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-011444';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-011745';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
