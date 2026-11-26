@@ -1277,7 +1277,7 @@ let svArm=0;$('sv-load').onclick=()=>{const code=$('sv-code').value;if(!code.tri
    in one transaction, so two devices can never overwrite each other's progress.
    This browser's save keeps working on its own whenever the cloud is unreachable.
    To turn it on, paste the web app config from the Firebase console into FB_CONFIG. */
-const FB_CONFIG=null;
+const FB_CONFIG={apiKey:"AIzaSyC650ZbF9XeRSCWQBcdG3rfmxWJlmRzjLU",authDomain:"dynamic-etry.firebaseapp.com",projectId:"dynamic-etry",storageBucket:"dynamic-etry.firebasestorage.app",messagingSenderId:"550472262138",appId:"1:550472262138:web:a37e968cd4e042e0250443"};
 const FB_VER='10.12.2';
 const cloud={on:false,user:null,db:null,synced:false,busy:false,again:false,timer:0,msg:''};
 function clStatus(t){cloud.msg=t;const el=document.getElementById('cl-status');if(el)el.textContent=t;clButtons()}
@@ -1903,7 +1903,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-005328';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-011444';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
