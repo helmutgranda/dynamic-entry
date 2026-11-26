@@ -127,6 +127,7 @@ clip-path:polygon(0 3%,4% 0,100% 2%,99% 97%,95% 100%,0 98%)}
 #mn .co-box{display:flex;flex-direction:column;gap:8px;width:min(420px,100%);align-items:stretch}#mn .co-in{font:600 20px "Barlow Condensed",sans-serif;background:#14161a;color:#e8e2d0;border:1px solid #5a5a62;padding:6px 10px;box-sizing:border-box;width:100%}#mn .co-in:focus{outline:2px solid #e8c24a;outline-offset:1px}
 #mn .co-row{display:flex;gap:10px}#mn .co-codein{text-transform:uppercase;letter-spacing:6px;text-align:center;flex:1;min-width:0}#mn .co-or{font-size:16px;color:#a9a393;margin-top:6px}
 #mn .co-codebox{display:flex;flex-direction:column;align-items:center;border:2px dashed #e8c24a;padding:6px}#mn .co-codebox span{font-size:14px;color:#a9a393;letter-spacing:1px;text-transform:uppercase}#mn .co-codebox b{font:400 40px "Black Ops One",Impact,sans-serif;letter-spacing:8px;color:#e8c24a}
+#mn .co-wait{font:400 26px "Black Ops One",Impact,sans-serif;color:#e8c24a;letter-spacing:1px;margin:8px 0;animation:coWait 1.6s ease-in-out infinite}@keyframes coWait{50%{opacity:.45}}@media (prefers-reduced-motion:reduce){#mn .co-wait{animation:none}}
 #mn .co-vis{display:flex;border:1px solid #5a5a62}#mn .co-vis button{flex:1;font:600 19px "Barlow Condensed",sans-serif;padding:6px;background:transparent;color:#a9a393;border:0;cursor:pointer}#mn .co-vis button.on{background:#e8c24a;color:#14161a}#mn .co-vis button:focus-visible{outline:2px solid #e8e2d0;outline-offset:-3px}
 #mn .co-listh{margin-top:10px}#mn .co-rooms{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto}#mn .co-rooms li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border:1px solid #4a4840;background:rgba(255,255,255,.03);text-align:left}#mn .co-rooms li div{display:flex;flex-direction:column;min-width:0}#mn .co-rooms b{color:#e8e2d0;font-size:19px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#mn .co-rooms span{color:#a9a393;font-size:15px}#mn .co-rooms .b2{padding:4px 16px;font-size:18px}
 #mn .co-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;text-align:left}#mn .co-list li{display:flex;align-items:center;gap:8px;font-size:19px;color:#e8e2d0;padding:4px 8px;background:rgba(255,255,255,.04)}#mn .co-list i{width:10px;height:10px;display:inline-block}
@@ -196,8 +197,8 @@ clip-path:polygon(0 3%,4% 0,100% 2%,99% 97%,95% 100%,0 98%)}
 <div class="co-row"><input id="co-code" class="co-in co-codein" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false" aria-label="Game code"><button id="co-join" class="b2" type="button">Join</button></div>
 <div class="lo-h co-listh">Public games</div><p id="co-rooms-msg" class="sv-hint" role="status"></p><ul id="co-rooms" class="co-rooms"></ul></div>
 <div id="co-room" class="co-box" hidden><div class="co-codebox"><span>Game code</span><b id="co-code-big"></b></div><p id="co-visline" class="sv-hint"></p><ul id="co-list" class="co-list"></ul>
-<div id="co-hostbox" class="co-box"><label class="sv-lab" for="co-lvl">Mission</label><select id="co-lvl" class="co-in"><option value="0">1. Tutorial</option><option value="1" selected>2. Library</option><option value="2">3. Motel</option></select><p id="co-count" class="sv-hint"></p><button id="co-deploy" class="b" type="button">Deploy</button></div>
-<p id="co-wait" class="sv-hint">Waiting for the host to deploy...</p><button id="co-leave" class="b2" type="button">Leave game</button></div>
+<div id="co-hostbox" class="co-box"><select id="co-lvl" class="co-in" hidden aria-hidden="true"><option value="1" selected>2. Library</option></select><p id="co-count" class="sv-hint"></p><button id="co-deploy" class="b" type="button">Start</button><p class="sv-hint">Start takes everyone to the police station. Pick the mission at the mission board.</p></div>
+<p id="co-wait" class="co-wait" role="status">Waiting for host...</p><button id="co-leave" class="b2" type="button">Leave game</button></div>
 <p id="co-msg" class="sv-msg" role="status"></p><button id="co-back" class="b2" type="button">Back</button></div>
 <div id="s-save" class="sec" hidden><h2>Progress</h2><p>Your progress saves automatically in this browser and stays when the game is updated.</p>
 <p id="sv-stats" class="sv-stats"></p><div id="sv-list" class="sv-list"></div>
@@ -870,7 +871,7 @@ const viewW=zoom===1?cam.vw:840/zoom,sc=420/viewW,tx=-sc*(cam.cx-viewW/2)+(shake
 mx=cam.cx-viewW/2+fx*viewW;my=cam.cy-viewW*.357143+fy*viewW*.714286;if(udc&&(udc.d.open||won||lost))udc=null;if(!udc&&!sfxUdc.paused)sfxUdc.pause();if(udc){if(udc.input==='keyboard'){const pan=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);udc.f=Math.max(udc.base-.6,Math.min(udc.base+.6,udc.f+pan*1.2*dt))}else{const da=norm(Math.atan2(my-udc.cy,mx-udc.cx)-udc.base);udc.f=udc.base+Math.max(-.6,Math.min(.6,da))}}
 let vx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),vy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
 if((vx||vy)&&!won&&!lost&&!udc&&!pDown){const l=Math.hypot(vx,vy);p.x+=vx/l*110*LO_SPD*dt;p.y+=vy/l*110*LO_SPD*dt;collide()}
-const moving=(vx||vy)&&!won&&!lost&&!udc&&!paused,target=keyboardAim&&!won&&!lost&&!udc&&!paused?aimAssistTarget():null;if(mouseLook&&!won&&!lost&&!udc&&!paused)ang=Math.atan2(my-p.y,mx-p.x);else if(target)ang=Math.atan2(target.y-p.y,target.x-p.x);else if(moving)ang=Math.atan2(vy,vx);else if(!keyboardAim||won||lost||udc||paused)ang=Math.atan2(my-p.y,mx-p.x);nowS=gt;if(reloadEnd&&nowS>=reloadEnd){if(reloadWep===2){if(mags>0){mags--;pAmmo=PCAP}}else{const t=Math.min(SG_CAP-ammo,sRes);ammo+=t;sRes-=t}reloadEnd=0}if(NET.mode==='client'&&NET.inMission){coopClientTick(dt)}else if(!won&&!lost&&!paused){tickTimer(dt);if(!lost)npcs(nowS,dt);updFb(dt,nowS);if(isHub()){hubPeopleTick(dt);inmateTick(dt);shTick()}updJobs(dt);updBreach();updMates(dt);updEsc(dt);lifeTick(dt);if(kick)updKick(dt);if(op)updOp(dt,nowS);if(stk)updStk(dt,nowS);if(heal)updHeal(dt,nowS)}if(NET.mode==='host')coopHostTick(dt);
+const moving=(vx||vy)&&!won&&!lost&&!udc&&!paused,target=keyboardAim&&!won&&!lost&&!udc&&!paused?aimAssistTarget():null;if(mouseLook&&!won&&!lost&&!udc&&!paused)ang=Math.atan2(my-p.y,mx-p.x);else if(target)ang=Math.atan2(target.y-p.y,target.x-p.x);else if(moving)ang=Math.atan2(vy,vx);else if(!keyboardAim||won||lost||udc||paused)ang=Math.atan2(my-p.y,mx-p.x);nowS=gt;if(reloadEnd&&nowS>=reloadEnd){if(reloadWep===2){if(mags>0){mags--;pAmmo=PCAP}}else{const t=Math.min(SG_CAP-ammo,sRes);ammo+=t;sRes-=t}reloadEnd=0}if(NET.mode==='client'&&NET.inMission){coopClientTick(dt)}else if(!won&&!lost&&!paused){tickTimer(dt);if(!lost)npcs(nowS,dt);updFb(dt,nowS);if(isHub()){hubPeopleTick(dt);inmateTick(dt);shTick()}updJobs(dt);updBreach();updMates(dt);updEsc(dt);lifeTick(dt);if(kick)updKick(dt);if(op)updOp(dt,nowS);if(stk)updStk(dt,nowS);if(heal)updHeal(dt,nowS)}if(NET.mode==='host')coopHostTick(dt);if(NET.inStation)coopStationTick();
 scene();drawFb();drawDebris();
 o.globalCompositeOperation='source-over';o.fillStyle=udc?'rgba(0,0,0,1)':assist?'rgba(5,9,11,.82)':'rgba(5,9,11,.97)';o.fillRect(-4000,-4000,8000,8000);
 o.globalCompositeOperation='destination-out';o.fillStyle='#000';
@@ -1058,7 +1059,7 @@ ft:['lockrow','bench','bench','weights','drack','tread','bag','shelf','shelf','s
 yard:[],spots:[[470,330]],
 rooms:[{x:40,y:220,w:600,h:60,c:'#80858a'},{x:40,y:40,w:220,h:180,c:'#8a9aa0'},{x:260,y:40,w:200,h:180,c:'#3d4247'},{x:460,y:40,w:180,h:180,c:'#6a6c66'},{x:40,y:280,w:260,h:140,c:'#7a7d80'},{x:300,y:280,w:120,h:140,c:'#5a5e66'},{x:420,y:280,w:100,h:140,c:'#6e6e70'},{x:520,y:280,w:120,h:140,c:'#6b5e52'}],
 sw:[[0,52,232],[1,240,210],[2,360,210],[3,620,210],[4,280,292],[5,400,292],[6,430,292],[7,620,292]],wins:[]};
-const HUB_SPOTS={9:[{x:310,y:70,label:'Select a mission',act:()=>{fromHub=true;showUi('levels')}},{x:606,y:126,label:'Loadout lockers',act:()=>{fromHub=true;showUi('loadout')}},{x:480,y:156,label:'Gunsmith bench',act:()=>{fromHub=true;gsView='prim';showUi('gunsmith')}},
+const HUB_SPOTS={9:[{x:310,y:70,label:'Select a mission',act:()=>{if(NET.mode==='client'){pSay='The host picks the mission.';pSayU=nowS+1.6;return}fromHub=true;showUi('levels')}},{x:606,y:126,label:'Loadout lockers',act:()=>{fromHub=true;showUi('loadout')}},{x:480,y:156,label:'Gunsmith bench',act:()=>{fromHub=true;gsView='prim';showUi('gunsmith')}},
 {x:240,y:298,label:'Coffee',act:()=>{hp=100;pSay=['Ahh. Better.','Station coffee. Still terrible.','Fuel for the night shift.'][Math.floor(Math.random()*3)];pSayU=nowS+1.6;try{uiSnd('click')}catch(e){}}},
 {x:470,y:390,label:'Go downstairs',act:()=>hubGo(HUB_B,470,330)}],
 10:[{x:470,y:390,label:'Go upstairs',act:()=>hubGo(HUB,470,330)},{x:413,y:178,label:'Hit the bag',act:()=>{shake=Math.max(shake,.3);playHit();pSay=['Hah!','Still got it.','Take that.'][Math.floor(Math.random()*3)];pSayU=nowS+1}},
@@ -1306,7 +1307,7 @@ const gun=L.roles.filter(r=>r===1).length,kn=L.roles.filter(r=>r===3).length,un=
 li($('br-obj'),['Breach and clear every room.','Cuff every suspect. Cuff the hostages too, they are not cleared yet.','Get everyone into a police car: escort them yourself (E) or send a squadmate (C).','Get out before the timer hits zero.']);
 $('br-roe').textContent='Rules of engagement: lethal force only against armed suspects who are a threat. Shooting someone who gave up costs points, and every person not in a police car at the end costs 250.';
 $('br-kit').textContent='Your kit: '+loSummary().replace(/^Deploying with /,'');showUi('brief')}
-function deploy(i){showBrief(i)}
+function deploy(i){if(NET.mode==='host'&&NET.inStation){coopStartHost(i);return}showBrief(i)}
 $('b-begin').onclick=()=>titleCard(brSel,brPlace);
 /* random time and place for each mission, plus the black title card shown before the match */
 let brPlace=null,tc=null;
@@ -1459,7 +1460,7 @@ cloudInit();
 const PHOTON_APP_ID='3942725b-1c92-4c8a-b9e5-b2463bb79c9c';
 const PHOTON_REGION='us';
 const PHOTON_SDK='https://cdn.jsdelivr.net/npm/photon-realtime@4.4.0/photon-realtime-module.js';
-const NC={HELLO:1,ROSTER:2,START:3,SNAP:4,INPUT:5,ACT:6,BYE:7,LOBBY:8,DENY:9};
+const NC={HELLO:1,ROSTER:2,START:3,SNAP:4,INPUT:5,ACT:6,BYE:7,LOBBY:8,DENY:9,STATION:10,STN:11};
 const NET={mode:null,via:null,id:0,host:0,code:'',players:{},av:{},actor:0,t:null,snapAt:0,inAt:0,loKey:'',sndQ:[],inMission:false,joinTimer:0};
 let pDown=false;
 const CO_COL=['#e8c24a','#5fc77a','#4fa3e0','#e07a2a'];
@@ -1494,21 +1495,21 @@ c.connectToRegionMaster(PHOTON_REGION);return ph}
 function phClose(){if(PH){PH.dead=true;try{PH.c.disconnect()}catch(e){}PH=null}}
 async function netPhotonT(code,asHost){const ph=await phEnsure(),c=ph.c,P=ph.P,room='DE-'+code;
 const T={id:0,asHost,send(cd,d,to){try{const o=to?{targetActors:[to]}:{receivers:P.LoadBalancing.Constants.ReceiverGroup.Others};c.raiseEvent(cd,JSON.stringify(d===undefined?null:d),o)}catch(e){}},leave(){phClose()}};ph.T=T;
-const go=()=>{if(asHost)c.createRoom(room,{maxPlayers:4,isVisible:!!NET.pub,customGameProperties:{h:coopName(),m:+($('co-lvl').value||1),s:0},propsListedInLobby:['h','m','s']});else c.joinRoom(room)};
+const go=()=>{if(asHost)c.createRoom(room,{maxPlayers:4,isVisible:!!NET.pub,customGameProperties:{h:coopName(),m:-1,s:0},propsListedInLobby:['h','m','s']});else c.joinRoom(room)};
 if(ph.ready)go();else ph.pending=go;return T}
 /* room details shown in the public list: host name, mission, and whether a mission is under way */
-function coopRoomProps(){const m=NET.inMission?lvl:+($('co-lvl').value||1),st=NET.inMission?1:0;if(NET.via==='photon'&&PH&&PH.c.isJoinedToRoom()&&NET.mode==='host'){try{const r=PH.c.myRoom();r.setCustomProperty('m',m);r.setCustomProperty('s',st)}catch(e){}}}
+function coopRoomProps(){const m=NET.inMission?lvl:-1,st=NET.inMission?1:NET.inStation?2:0;if(NET.via==='photon'&&PH&&PH.c.isJoinedToRoom()&&NET.mode==='host'){try{const r=PH.c.myRoom();r.setCustomProperty('m',m);r.setCustomProperty('s',st)}catch(e){}}}
 /* local test mode (?mp=local): public hosts announce themselves to other tabs every second */
 const coList={ch:null,rooms:{},timer:0};
 function coLocalList(){if(coList.ch)return;coList.ch=new BroadcastChannel('de-coop-list');coList.ch.onmessage=e=>{const m=e.data;if(!m||!m.code)return;if(m.gone)delete coList.rooms[m.code];else coList.rooms[m.code]=Object.assign(m,{at:Date.now()});coopListUi()};
-coList.timer=setInterval(()=>{const now=Date.now();for(const k in coList.rooms)if(now-coList.rooms[k].at>3500)delete coList.rooms[k];if(NET.mode==='host'&&NET.pub)coList.ch.postMessage({code:NET.code,h:(NET.players[NET.id]||{}).name||coopName(),m:NET.inMission?lvl:+($('co-lvl').value||1),s:NET.inMission?1:0,n:Object.keys(NET.players).length,max:4});coopListUi()},1000)}
+coList.timer=setInterval(()=>{const now=Date.now();for(const k in coList.rooms)if(now-coList.rooms[k].at>3500)delete coList.rooms[k];if(NET.mode==='host'&&NET.pub)coList.ch.postMessage({code:NET.code,h:(NET.players[NET.id]||{}).name||coopName(),m:NET.inMission?lvl:-1,s:NET.inMission?1:NET.inStation?2:0,n:Object.keys(NET.players).length,max:4});coopListUi()},1000)}
 function coopRooms(){if(coopLocal())return Object.values(coList.rooms).map(r=>({code:r.code,h:r.h,m:r.m,s:r.s,n:r.n,max:r.max||4}));
 if(!PH||!PH.ready)return null;return (PH.rooms||[]).filter(r=>r&&typeof r.name==='string'&&r.name.startsWith('DE-')&&!r.removed&&r.playerCount>0).map(r=>({code:r.name.slice(3),h:String(r.getCustomProperty('h')||'Officer'),m:+(r.getCustomProperty('m')||0),s:+(r.getCustomProperty('s')||0),n:r.playerCount,max:r.maxPlayers||4}))}
 function coopBrowse(){if(coopLocal()){coLocalList();coopListUi();return}if(!PHOTON_APP_ID)return;phEnsure().then(coopListUi).catch(()=>{const el=$('co-rooms-msg');if(el)el.textContent='Could not reach the co-op server. Check your connection.'})}
 function coopListUi(){const box=document.getElementById('co-rooms');if(!box||NET.mode)return;const rooms=coopRooms(),msg=$('co-rooms-msg');box.innerHTML='';
 if(rooms===null){msg.textContent='Looking for public games...';return}msg.textContent=rooms.length?'':'No public games right now. Host one and others can join it here.';
 rooms.sort((a,b)=>a.s-b.s||b.n-a.n);for(const r of rooms){const li=document.createElement('li'),info=document.createElement('div'),b=document.createElement('button'),full=r.n>=r.max;
-const t=document.createElement('b');t.textContent=r.h.slice(0,16)+"'s game";const d=document.createElement('span');d.textContent=((lv[r.m]||lv[1]).n)+' · '+r.n+'/'+r.max+' players · '+(r.s?'Mission in progress':'In the lobby');info.append(t,d);
+const t=document.createElement('b');t.textContent=r.h.slice(0,16)+"'s game";const d=document.createElement('span');d.textContent=(r.s===1&&lv[r.m]?lv[r.m].n+' · ':'')+r.n+'/'+r.max+' players · '+(r.s===1?'Mission in progress':r.s===2?'At the police station':'In the lobby');info.append(t,d);
 b.type='button';b.className='b2';b.textContent=full?'Full':'Join';b.disabled=full||!!NET.t;b.onclick=()=>coopJoinCode(r.code);li.append(info,b);box.appendChild(li)}}
 
 /* ---- lobby flow ---- */
@@ -1522,7 +1523,7 @@ function netJoined(T,asHost){NET.id=T.id;if(asHost){NET.mode='host';NET.host=T.i
 else{coopMsg('Connected. Saying hello to the host...');T.send(NC.HELLO,{name:coopName(),lo:LO});clearTimeout(NET.joinTimer);NET.joinTimer=setTimeout(()=>{if(NET.mode!=='client'){coopMsg('No game with that code. Check the code with your host.');coopFail()}},coopLocal()?1500:8000)}}
 function coopFail(){const t=NET.t;NET.t=null;NET.mode=null;if(t)t.leave();coopLobbyUi();if(ui==='coop')setTimeout(coopBrowse,300)}
 function coopLeave(){if(NET.t){NET.t.send(NC.BYE,null);NET.t.leave()}coopReset();coopLobbyUi();if(ui==='coop')coopBrowse()}
-function coopReset(){clearTimeout(NET.joinTimer);if(coList.ch&&NET.mode==='host'&&NET.pub)coList.ch.postMessage({code:NET.code,gone:1});NET.mode=null;NET.t=null;NET.pub=false;NET.players={};NET.av={};NET.inMission=false;pDown=false}
+function coopReset(){clearTimeout(NET.joinTimer);NET.inStation=false;if(coList.ch&&NET.mode==='host'&&NET.pub)coList.ch.postMessage({code:NET.code,gone:1});NET.mode=null;NET.t=null;NET.pub=false;NET.players={};NET.av={};NET.inMission=false;pDown=false}
 function coopEnd(msg){const was=NET.mode;coopReset();if(!was)return;showUi('coop');coopLobbyUi();coopMsg(msg);setTimeout(coopBrowse,300)}
 function coopRoster(){if(NET.mode!=='host')return;const pl=Object.keys(NET.players).map(id=>[+id,NET.players[id].name]);NET.t.send(NC.ROSTER,{host:NET.id,pl,code:NET.code});coopLobbyUi()}
 function netGone(id){if(!NET.mode)return;if(NET.mode==='client'&&id===NET.host){coopEnd('The host left, so the game ended.');return}
@@ -1533,21 +1534,32 @@ const host=NET.mode==='host';$('co-hostbox').hidden=!host;$('co-wait').hidden=ho
 function coopPlayers(){return Object.keys(NET.players).map(Number)}
 
 /* ---- starting a mission ---- */
-function coopDeploy(){if(NET.mode!=='host')return;const L=+$('co-lvl').value||0;coopStartHost(L)}
-function coopStartHost(L){NET.inMission=true;startLevel(L);coopRoomProps();hideUi();pDown=false;mates=[];tutF.op=1;const ids=coopPlayers().filter(id=>id!==NET.id);NET.av={};
+function coopDeploy(){if(NET.mode!=='host')return;coopStation()}
+/* ---- the shared police station: Start (and every "Back to station") brings the whole team here.
+   Each player's station is their own (doors, staff), but everyone sees where the others are walking,
+   floor by floor. Only the host can pick and deploy a mission from the mission board. ---- */
+function coopNewAv(id,k){return{id,name:NET.players[id].name,x:96+k*14,y:250,a:0,wep:1,LO:NET.players[id].lo||LO,hp:100,down:false,esc:null,trail:[],fbs:2,col:CO_COL[k%4],say:'',sayU:0,f:HUB}}
+function coopStation(){if(NET.mode!=='host')return;NET.inMission=false;NET.inStation=true;pDown=false;const ids=coopPlayers();NET.av={};ids.forEach((id,k)=>{if(id!==NET.id)NET.av[id]=coopNewAv(id,k)});
+hubArrive={x:96,y:250,quiet:true};startLevel(HUB);pSay='Pick the mission at the board when everyone is ready.';pSayU=nowS+3;NET.t.send(NC.STATION,null);coopRoomProps()}
+function coopStationClient(){NET.inMission=false;NET.inStation=true;pDown=false;const k=coopPlayers().indexOf(NET.id);hubArrive={x:96+k*14,y:250,quiet:true};startLevel(HUB);pSay='The host picks the mission at the board.';pSayU=nowS+3}
+function coopStationTick(){if(!NET.inStation||!NET.t)return;const now=performance.now();
+if(NET.mode==='host'){if(now-NET.snapAt>100){NET.snapAt=now;const pl=[[NET.id,Math.round(p.x),Math.round(p.y),Math.round(ang*100)/100,wep,0,hp,LO.prim,LO.side,LO.tool,nowS<pSayU?pSay:'',lvl]];for(const a of Object.values(NET.av))pl.push([a.id,Math.round(a.x),Math.round(a.y),Math.round(a.a*100)/100,a.wep,0,100,(a.LO||LO).prim,(a.LO||LO).side,(a.LO||LO).tool,'',a.f||HUB]);NET.t.send(NC.STN,{pl})}}
+else if(now-NET.inAt>66){NET.inAt=now;const lk=JSON.stringify(LO),d={x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,a:Math.round(ang*100)/100,w:wep,f:lvl};if(lk!==NET.loKey){NET.loKey=lk;d.lo=LO}NET.t.send(NC.INPUT,d,NET.host)}}
+function coopStartHost(L){NET.inMission=true;NET.inStation=false;startLevel(L);coopRoomProps();hideUi();pDown=false;mates=[];tutF.op=1;const ids=coopPlayers().filter(id=>id!==NET.id);NET.av={};
 ids.forEach((id,k)=>{const old=NET.players[id];NET.av[id]={id,name:old.name,x:-116+(k+1)*12,y:262+(k%2?8:-8),a:0,wep:1,LO:old.lo||LO,hp:100,down:false,esc:null,trail:[],fbs:2,col:CO_COL[(coopPlayers().indexOf(id))%4],say:'',sayU:0}});
 NET.t.send(NC.START,{lvl:L,S:coopSnap(true)})}
-function coopStartClient(d){NET.inMission=true;startLevel(d.lvl);hideUi();pDown=false;mates=[];tutF.op=1;const me=coopPlayers().indexOf(NET.id);p.x=-116+me*12;p.y=262+(me%2?8:-8);trail=[{x:p.x,y:p.y}];coopApply(d.S,true)}
-function coopToLobby(){if(NET.mode==='host'){NET.inMission=false;NET.t.send(NC.LOBBY,null);coopRoomProps()}showUi('coop');coopLobbyUi()}
+function coopStartClient(d){NET.inMission=true;NET.inStation=false;startLevel(d.lvl);hideUi();pDown=false;mates=[];tutF.op=1;const me=coopPlayers().indexOf(NET.id);p.x=-116+me*12;p.y=262+(me%2?8:-8);trail=[{x:p.x,y:p.y}];coopApply(d.S,true)}
+function coopToLobby(){if(NET.mode==='host'){coopStation();return}const es=document.getElementById('es');if(es&&!/Waiting for the host/.test(es.textContent))es.textContent+=' Waiting for the host to head back to the station...';pSay='Waiting for the host...';pSayU=nowS+2}
 function coopRetry(){if(NET.mode==='host')coopStartHost(lvl);else{pSay='Only the host can restart.';pSayU=nowS+1.4}}
 
 /* ---- messages ---- */
 function netOn(c,d,from){
 if(NET.mode==='host'){
  if(c===NC.HELLO){if(Object.keys(NET.players).length>=4){NET.t.send(NC.DENY,{why:'That game is full (4 players).'},from);return}NET.players[from]={name:String((d&&d.name)||'Officer').slice(0,16),lo:d&&d.lo};coopRoster();
-  if(NET.inMission){const k=coopPlayers().indexOf(from);NET.av[from]={id:from,name:NET.players[from].name,x:-116,y:262,a:0,wep:1,LO:NET.players[from].lo||LO,hp:100,down:false,esc:null,trail:[],fbs:2,col:CO_COL[k%4],say:'',sayU:0};NET.t.send(NC.START,{lvl,S:coopSnap(true)},from)}return}
+  if(NET.inMission){const k=coopPlayers().indexOf(from);NET.av[from]={id:from,name:NET.players[from].name,x:-116,y:262,a:0,wep:1,LO:NET.players[from].lo||LO,hp:100,down:false,esc:null,trail:[],fbs:2,col:CO_COL[k%4],say:'',sayU:0};NET.t.send(NC.START,{lvl,S:coopSnap(true)},from)}
+  else if(NET.inStation){NET.av[from]=coopNewAv(from,coopPlayers().indexOf(from));NET.t.send(NC.STATION,null,from)}return}
  const av=NET.av[from];if(!av)return;
- if(c===NC.INPUT){if(av.down)return;av.x=+d.x||av.x;av.y=+d.y||av.y;av.a=+d.a||0;av.wep=d.w|0;if(d.lo)av.LO=d.lo;const t=av.trail,l=t[t.length-1];if(!l||Math.hypot(l.x-av.x,l.y-av.y)>4){t.push({x:av.x,y:av.y});if(t.length>60)t.shift()}return}
+ if(c===NC.INPUT){if(av.down)return;if(d.f)av.f=d.f;av.x=+d.x||av.x;av.y=+d.y||av.y;av.a=+d.a||0;av.wep=d.w|0;if(d.lo)av.LO=d.lo;const t=av.trail,l=t[t.length-1];if(!l||Math.hypot(l.x-av.x,l.y-av.y)>4){t.push({x:av.x,y:av.y});if(t.length>60)t.shift()}return}
  if(c===NC.ACT&&d)coopAct(av,d);return}
 if(NET.mode==='client'||NET.t){
  if(c===NC.ROSTER){clearTimeout(NET.joinTimer);NET.mode='client';NET.host=d.host;NET.players={};for(const[id,n]of d.pl)NET.players[id]={name:n};NET.code=d.code;if(!NET.inMission)coopLobbyUi();return}
@@ -1555,7 +1567,9 @@ if(NET.mode==='client'||NET.t){
  if(NET.mode!=='client')return;
  if(c===NC.START){coopStartClient(d);return}
  if(c===NC.SNAP){if(NET.inMission)coopApply(d,false);return}
- if(c===NC.LOBBY){NET.inMission=false;showUi('coop');coopLobbyUi();return}}}
+ if(c===NC.LOBBY){NET.inMission=false;showUi('coop');coopLobbyUi();return}
+ if(c===NC.STATION){coopStationClient();return}
+ if(c===NC.STN){if(NET.inStation&&d&&d.pl)NET.others=d.pl.filter(q=>q[0]!==NET.id);return}}}
 
 /* ---- host: play a teammate's action out in the host's world ---- */
 function asRemote(av,fn){const s={p,ang,LO,wep,ammo,pAmmo,sRes,mags,shotAt,reloadEnd,shotT,stk,udc,kick,brc,esc,trail,fbs,pSay,pSayU,hp,flash,shake};
@@ -1609,10 +1623,10 @@ function coopClientTick(dt){if(NET.mode!=='client'||!NET.inMission)return;const 
 if(performance.now()-NET.inAt>66&&!pDown){NET.inAt=performance.now();const lk=JSON.stringify(LO),d={x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,a:Math.round(ang*100)/100,w:wep};if(lk!==NET.loKey){NET.loKey=lk;d.lo=LO}NET.t.send(NC.INPUT,d,NET.host)}}
 function coopActSend(k){if(NET.mode==='client'&&NET.t)NET.t.send(NC.ACT,{k,a:ang,w:wep},NET.host)}
 /* client controls: things that change the shared world go to the host; everything else stays local */
-function coopFire(){if(pDown)return;if(NET.mode!=='client'){if(stk)swing();else fire(nowS);return}
+function coopFire(){if(pDown)return;if(NET.mode!=='client'||!NET.inMission){if(stk)swing();else fire(nowS);return}
 if(wep===3&&LO.tool==='ram'){coopActSend('force');pSay='Ram it!';pSayU=nowS+.8;return}if(wep===3&&LO.tool==='mirror'){toggleUdc();return}
 const t0=shotT;fire(nowS);if(shotT!==t0)coopActSend('fire')}
-function coopClientKey(k){if(NET.mode!=='client')return false;if(pDown)return['e','f',' ','g','t','n','b','c','q','h','enter'].includes(k);
+function coopClientKey(k){if(NET.mode!=='client'||!NET.inMission)return false;if(pDown)return['e','f',' ','g','t','n','b','c','q','h','enter'].includes(k);
 if(k==='e'){const dr=nearDoor();if(dr&&dr.locked&&!nearSus()&&!nearPick()){if(LO.tool==='mirror'||wep===3){coopActSend('force');pSay=LO.tool==='mirror'?'Kicking it in!':'Breaching!';pSayU=nowS+.8}else{pSay='Locked. Press 3 for the '+({ram:'battering ram',breach:'breach shotgun'}[LO.tool])+'.';pSayU=nowS+1.4}return true}coopActSend('use');return true}
 if(k==='f'||k===' '){coopFire();return true}
 if(k==='g'){if(fbs>0){fbs--;coopActSend('fb')}else{pSay='No flashbangs left';pSayU=nowS+1}return true}
@@ -1627,10 +1641,10 @@ if(!o.down){const w=o.wep;rr('#0f141b',1,-5,9,2.6,1);rr('#0f141b',1,2.5,w===2?8:
 if(w===3)rr(o.tool==='ram'?'#2b2b2e':'#18191b',4,-2.5,o.tool==='ram'?20:16,o.tool==='ram'?5:3,1.5);else if(w===2)rr(o.side==='pepper'?'#f28a2c':o.side==='magnum'?'#b9bec5':'#2a2c2f',5.5,-1.5,11,3,.8);else rr(o.prim==='ar15'?'#25272b':o.prim==='m37'?'#5a2f18':'#e07a2a',8,-1.4,o.prim==='ar15'?20:15,2.8,.8)}
 circ('#12161c',0,0,4.6);rr(col,-1.5,-3.6,1.6,7.2,.6);x.restore();
 x.font='600 7px "Barlow Condensed",sans-serif';x.textAlign='center';x.textBaseline='bottom';x.fillStyle='rgba(0,0,0,.6)';x.fillText(name,o.x+.5,o.y-11.5);x.fillStyle=o.down?'#d94a3a':col;x.fillText(o.down?name+' (down)':name,o.x,o.y-12);if(say)bubble(o.x,o.y-20,say)}
-function coopDraw(){if(!NET.mode||!NET.inMission||isHub())return;const ids=coopPlayers();
-if(NET.mode==='host'){for(const a of Object.values(NET.av)){if(!a.down&&!canSee(a)&&Math.hypot(a.x-p.x,a.y-p.y)>40)continue;coopBuddy({x:a.x,y:a.y,a:a.a,wep:a.wep,down:a.down,prim:(a.LO||LO).prim,side:(a.LO||LO).side,tool:(a.LO||LO).tool,fx0:a.fx0,fy0:a.fy0},CO_COL[ids.indexOf(a.id)%4],a.name,nowS<a.sayU?a.say:'');}}
-else for(const q of NET.others||[]){const o=NET.ghost||(NET.ghost={});const g=o[q[0]]||(o[q[0]]={x:q[1],y:q[2]});g.x+=(q[1]-g.x)*.35;g.y+=(q[2]-g.y)*.35;g.a=q[3];g.wep=q[4];g.down=!!q[5];g.prim=q[7];g.side=q[8];g.tool=q[9];if(!g.down&&!canSee(g)&&Math.hypot(g.x-p.x,g.y-p.y)>40)continue;const nm=(NET.players[q[0]]||{}).name||'Officer';coopBuddy(g,CO_COL[ids.indexOf(q[0])%4],nm,q[10])}}
-function coopHud(){if(!NET.mode||!NET.inMission)return;const ids=coopPlayers();x.font='600 13px "Barlow Condensed",sans-serif';x.textAlign='left';x.textBaseline='top';let y0=34;
+function coopDraw(){if(!NET.mode||!(NET.inMission||NET.inStation))return;if(NET.inMission&&isHub())return;const ids=coopPlayers(),st=NET.inStation;
+if(NET.mode==='host'){for(const a of Object.values(NET.av)){if(st&&(a.f||HUB)!==lvl)continue;if(!a.down&&!canSee(a)&&Math.hypot(a.x-p.x,a.y-p.y)>40)continue;coopBuddy({x:a.x,y:a.y,a:a.a,wep:a.wep,down:a.down,prim:(a.LO||LO).prim,side:(a.LO||LO).side,tool:(a.LO||LO).tool,fx0:a.fx0,fy0:a.fy0},CO_COL[ids.indexOf(a.id)%4],a.name,nowS<a.sayU?a.say:'');}}
+else for(const q of NET.others||[]){if(st&&(q[11]||HUB)!==lvl)continue;const o=NET.ghost||(NET.ghost={});const g=o[q[0]]||(o[q[0]]={x:q[1],y:q[2]});g.x+=(q[1]-g.x)*.35;g.y+=(q[2]-g.y)*.35;g.a=q[3];g.wep=q[4];g.down=!!q[5];g.prim=q[7];g.side=q[8];g.tool=q[9];if(!g.down&&!canSee(g)&&Math.hypot(g.x-p.x,g.y-p.y)>40)continue;const nm=(NET.players[q[0]]||{}).name||'Officer';coopBuddy(g,CO_COL[ids.indexOf(q[0])%4],nm,q[10])}}
+function coopHud(){if(!NET.mode||!(NET.inMission||NET.inStation))return;const ids=coopPlayers();x.font='600 13px "Barlow Condensed",sans-serif';x.textAlign='left';x.textBaseline='top';let y0=64;
 const rows=NET.mode==='host'?[[NET.id,pDown,hp]].concat(Object.values(NET.av).map(a=>[a.id,a.down,a.hp])):[[NET.id,pDown,hp]].concat((NET.others||[]).map(q=>[q[0],q[5],q[6]]));
 for(const[id,dn,h]of rows){const nm=(NET.players[id]||{}).name||'Officer';x.fillStyle='rgba(0,0,0,.45)';x.fillRect(8,y0-1,128,15);x.fillStyle=CO_COL[ids.indexOf(id)%4];x.fillRect(10,y0+3,6,6);x.fillStyle=dn?'#d94a3a':'#e8e2d0';x.fillText(nm.slice(0,12)+(id===NET.id?' (you)':''),20,y0);x.fillStyle=dn?'#d94a3a':'#5fc77a';x.textAlign='right';x.fillText(dn?'DOWN':Math.round(h)+'',132,y0);x.textAlign='left';y0+=16}
 if(pDown){x.font='600 18px "Barlow Condensed",sans-serif';x.textAlign='center';x.fillStyle='#d94a3a';x.fillText("You're down. Your team can still finish the mission.",W/2,H-70)}}
@@ -2065,7 +2079,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-030959';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-031627';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
