@@ -353,7 +353,7 @@ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDef
 if(coopClientKey(k))return;if(pDown&&['e','f',' ','g','t','n','b','c','q','h','u','r','1','2','3'].includes(k))return;
 if(k==='e'){if(!useE()){const d=nearDoor();if(d){if(d.locked){if(LO.tool==='mirror')kickStart(d);else if(wep===3){if(LO.tool==='ram')ramDoor(d);else breachDoor(d)}else{pSay='Locked. Press 3 for the '+({ram:'battering ram',breach:'breach shotgun',mirror:'mirrorgun'}[LO.tool])+'.';pSayU=nowS+1.4}}else{d.open=!d.open;playDoorMove(d.open);build()}}}}
 if(k==='f')coopFire();
-if(k===' ')coopFire();if(k==='c')orderEscort();if(k==='t'){const w=nearSw();if(w){rooms[w[0]].on=!rooms[w[0]].on;tutF.lit=1}}if(k==='m')assist=!assist;if(k==='1'||k==='2'||k==='3')switchWep(+k);if(k==='h')callMedic();if(k==='u')toggleUdc();if(k==='q')openMenu();if(k==='g')throwFb();if(k==='b')dropStick();if(k==='n')bargain();if(k==='r')reload();if(k==='enter'&&(won||lost)&&!NET.mode)reset();});
+if(k===' ')coopFire();if(k==='c')orderEscort();if(k==='t'){const w=nearSw();if(w){rooms[w[0]].on=!rooms[w[0]].on;tutF.lit=1}}if(k==='m')assist=!assist;if(k==='1'||k==='2'||k==='3')switchWep(+k);if(k==='h')callMedic();if(k==='u')toggleUdc();if(k==='q')openMenu();if(k==='g')throwFb();if(k==='v'&&lvl===HUB_U){const li=nearLane();if(li>=0)laneSpot(li).act()}if(k==='b')dropStick();if(k==='n')bargain();if(k==='r')reload();if(k==='enter'&&(won||lost)&&!NET.mode)reset();});
 addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=0;if(k==='e'&&kick&&kick.holding&&!paused)kickRelease()});
 c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();fx=(e.clientX-r.left)/r.width;fy=(e.clientY-r.top)/r.height;keyboardAim=false;if(udc)udc.input='mouse'});
 function poly(ctx,a0,a1,n,max){ctx.beginPath();ctx.moveTo(p.x,p.y);
@@ -895,7 +895,7 @@ let ti=0;
 if(!won&&!lost&&!udc){if(s)tip(s.x,s.y-8-ti++*26,'E',s.t===0&&!s.freed?'Free hostage':'Cuff');else{const pk=nearPick();if(pk){tip(pk.x,pk.y-8-ti++*26,'E','Escort');tip(pk.x,pk.y-8-ti++*26,'C','Squad: take to car')}}if(esc)tip(p.x,p.y-14-ti++*26,'C','Hand to squad');if(esc){const car=nearCar();if(car||!d)tip(p.x,p.y-14-ti++*26,'E',car?'Put in police car':'Let go')}
 const nt=negTarget();if(nt)tip(nt.x,nt.y-8-ti++*26,'N','Negotiate');if(d&&!s){const tk=d.locked&&LO.tool!=='mirror'&&wep!==3?'3':d.locked&&LO.tool==='breach'?'F':'E',tl=d.locked?(LO.tool==='mirror'?(kick&&kick.d===d&&kick.holding?'Release to kick':'Kick door (hold E)'):wep!==3?(LO.tool==='ram'?'Ready the battering ram':'Ready the breach shotgun'):LO.tool==='ram'?(stk&&stk.d===d?(stk.ready?'Swing ram':'Stacking up...'):'Stack up with the ram'):(brc&&brc.d===d?'Breaching...':d.hole?'Shoot again: break door':'Shoot: blow a hole')):d.open?'Close door':(d===doors[FD]&&!isHub()?'Breach':'Open door');tip((d.a[0]+d.a[2])/2,(d.a[1]+d.a[3])/2-ti++*26,tk,tl)}
 if(d&&!d.open&&!udc&&!kick&&!isHub()&&LO.tool==='mirror'&&doorSide(d).rm)tip((d.a[0]+d.a[2])/2,(d.a[1]+d.a[3])/2-ti++*26,'U','Use mirrorgun');
-{const hd=fbs>0&&!fb&&holeDoor();if(hd)tip((hd.a[0]+hd.a[2])/2,(hd.a[1]+hd.a[3])/2-ti++*26,'G','Flashbang through hole')}if(w)tip(w[1],w[2]-ti++*26,'T','Light '+(rooms[w[0]].on?'off':'on'));if(isHub()){const h=nearHub();if(h)tip(h.x,h.y-10-ti++*26,'E',h.label);else{const np=nearPerson();if(np&&nowS>=np.sayU)tip(np.x,np.y-10-ti++*26,'E','Talk');else{const im=nearInmate();if(im&&nowS>=im.sayU)tip(im.x,im.y-10-ti++*26,'E','Tell them to pipe down')}}}}
+{const hd=fbs>0&&!fb&&holeDoor();if(hd)tip((hd.a[0]+hd.a[2])/2,(hd.a[1]+hd.a[3])/2-ti++*26,'G','Flashbang through hole')}if(w)tip(w[1],w[2]-ti++*26,'T','Light '+(rooms[w[0]].on?'off':'on'));if(lvl===HUB_U){const li=nearLane();if(li>=0){const L=TRANGE.lanes[li];tip(L.x,182-ti++*26,'V','Move lane '+(li+1)+' target (now '+LANE_NAME[L.d]+')')}}if(isHub()){const h=nearHub();if(h)tip(h.x,h.y-10-ti++*26,'E',h.label);else{const np=nearPerson();if(np&&nowS>=np.sayU)tip(np.x,np.y-10-ti++*26,'E','Talk');else{const im=nearInmate();if(im&&nowS>=im.sayU)tip(im.x,im.y-10-ti++*26,'E','Tell them to pipe down')}}}}
 const alive=sus.filter(q=>!q.dead),ld=alive.filter(q=>q.loaded).length,cf=alive.filter(q=>q.cuffed).length;let m='Cuffed '+cf+'/'+alive.length+'   In police cars '+ld+'/'+alive.length+(esc?'   (escorting one)':'');
 if(isHub())m='Police Station \u00b7 free roam \u00b7 '+(lvl===HUB_B?'basement':lvl===HUB_U?'training floor (live fire)':'ground floor')+' \u00b7 E at the marked spots \u00b7 stairs in the stairwell';if(won)m='Everyone is in a police car. Mission complete.';
 if(lost)m=lost;
@@ -1077,10 +1077,10 @@ const HUB_U=11;
 const TRAINING={fd:0,roles:[],
 walls:[[40,40,640,40],[640,40,640,420],[640,420,40,420],[40,420,40,40],
 [40,210,300,210],[340,210,640,210],
-[40,250,80,250],[120,250,400,250],[400,250,400,420],
+[40,250,80,250],[120,250,400,250],[400,250,400,360],[400,400,400,420],
 [160,250,160,270],[160,310,160,330],[280,250,280,270],[280,310,280,330],
 [40,330,80,330],[120,330,320,330],[360,330,400,330],[220,330,220,360],[220,400,220,420]],
-doorDefs:[[300,210,340,210,300,250],[80,250,120,250,80,290],[160,270,160,310,200,270],[280,270,280,310,320,270],[80,330,120,330,80,370],[320,330,360,330,320,370],[220,360,220,400,260,360]],
+doorDefs:[[300,210,340,210,300,250],[80,250,120,250,80,290],[160,270,160,310,200,270],[280,270,280,310,320,270],[80,330,120,330,80,370],[320,330,360,330,320,370],[220,360,220,400,260,360],[400,360,400,400,440,360]],
 furn:[[44,44,592,10],[44,166,592,6],[158,146,4,26],[278,146,4,26],[398,146,4,26],[518,146,4,26],
 [230,292,16,16],[330,262,18,18],[110,388,30,18],[290,350,16,16],
 [602,262,34,52],[420,262,60,12]],
@@ -1089,14 +1089,22 @@ rooms:[{x:40,y:40,w:600,h:170,c:'#5b605c'},{x:40,y:210,w:600,h:40,c:'#6b6f72'},{
 sw:[],wins:[],yard:[],spots:[[470,330]]};
 const LANES=[100,220,340,460,580],LANE_Y=[62,100,136],LANE_NAME=['far','mid','near'];
 const TRANGE={lanes:LANES.map(x0=>({x:x0,d:1,holes:[],total:0,shots:0,last:null,lastU:0}))};
-const SH={run:false,t0:0,pen:0,doors:[1,2,3,4,5,6],done:null,targets:[
+const SH={run:false,t0:0,pen:0,doors:[1,2,3,4,5,6,7],done:null,doneAt:0,px:0,FIN:414,targets:[
 {x:140,y:315,bad:1},{x:262,y:268,bad:1},{x:200,y:318,bad:0},{x:385,y:315,bad:1},{x:58,y:405,bad:1},{x:196,y:404,bad:0},{x:382,y:402,bad:1}].map(t=>Object.assign(t,{up:true,hit:false,fx:0}))};
 function trainSave(){if(!SAVE.train||typeof SAVE.train!=='object')SAVE.train={};return SAVE.train}
+function nearLane(){let b=-1,bd=36;TRANGE.lanes.forEach((L,i)=>{const d=Math.hypot(p.x-L.x,p.y-192);if(d<bd){bd=d;b=i}});return b}
 function laneSpot(i){const L=TRANGE.lanes[i];return{x:L.x,y:192,get label(){return 'Lane '+(i+1)+': target '+LANE_NAME[L.d]+' (E to move, clears holes)'},act:()=>{L.d=(L.d+1)%3;L.holes=[];L.total=0;L.shots=0;L.last=null;try{uiSnd('click')}catch(e){}pSay='Lane '+(i+1)+' target moved '+LANE_NAME[L.d]+'.';pSayU=nowS+1.2}}}
-function shStart(){SH.run=true;SH.t0=nowS;SH.pen=0;SH.done=null;for(const t of SH.targets){t.up=true;t.hit=false;t.fx=0}for(const i of SH.doors){if(doors[i])doors[i].open=false}build();try{beep(1250)}catch(e){}pSay='GO! Clear the shoot house.';pSayU=nowS+1.4}
-function shFinish(){const raw=nowS-SH.t0,tot=raw+SH.pen,tr0=trainSave(),best=tr0.shBest,nb=!best||tot<best;SH.run=false;SH.done={tot,raw,pen:SH.pen,nb};if(nb){tr0.shBest=Math.round(tot*10)/10;saveWrite()}try{beep(880);setTimeout(()=>beep(1250),140)}catch(e){}
-pSay='Clear! '+tot.toFixed(1)+'s'+(SH.pen?' (incl. +'+SH.pen+'s penalty)':'')+(nb?' New best!':'');pSayU=nowS+3}
-function shTick(){if(lvl!==HUB_U)return;for(const t of SH.targets)if(!t.up&&t.fx<1)t.fx=Math.min(1,t.fx+fdt*5);if(SH.run&&!SH.targets.some(t=>t.bad&&t.up))shFinish()}
+function shReset(){SH.run=false;SH.pen=0;for(const t of SH.targets){t.up=true;t.hit=false;t.fx=0}for(const i of SH.doors){if(doors[i])doors[i].open=false}build()}
+function shStart(){SH.run=true;SH.t0=nowS;SH.pen=0;SH.done=null;try{beep(1250)}catch(e){}pSay='Timer running! Clear it and cross the finish line.';pSayU=nowS+1.6}
+function shFinish(){const missed=SH.targets.filter(t=>t.bad&&t.up).length;SH.pen+=missed*10;const raw=nowS-SH.t0,tot=raw+SH.pen,tr0=trainSave(),best=tr0.shBest,nb=!best||tot<best;SH.run=false;SH.doneAt=nowS;SH.done={tot,raw,pen:SH.pen,nb,missed};if(nb){tr0.shBest=Math.round(tot*10)/10;saveWrite()}try{beep(880);setTimeout(()=>beep(1250),140)}catch(e){}
+pSay=(missed?'Finished, '+missed+' threat'+(missed>1?'s':'')+' missed (+'+missed*10+'s). ':'Clear! ')+tot.toFixed(1)+'s'+(SH.pen&&!missed?' (incl. +'+SH.pen+'s penalty)':'')+(nb?' New best!':'');pSayU=nowS+3}
+function shInside(){const r=roomAt(p.x,p.y);return !!r&&rooms.indexOf(r)>=2&&rooms.indexOf(r)<=6}
+function shTick(){if(lvl!==HUB_U)return;for(const t of SH.targets)if(!t.up&&t.fx<1)t.fx=Math.min(1,t.fx+fdt*5);
+const crossed=SH.px<SH.FIN&&p.x>=SH.FIN&&p.y>330&&p.y<420;SH.px=p.x;
+if(!SH.run&&!SH.done&&doors[1]&&doors[1].open)shStart();
+else if(SH.run&&crossed)shFinish();
+/* after a run, once you are back outside, the house resets: doors shut and every target stands up again */
+else if(SH.done&&nowS-SH.doneAt>2.5&&!shInside()&&!SH.doors.some(i=>{const d=doors[i];return d&&Math.hypot(p.x-(d.a[0]+d.a[2])/2,p.y-(d.a[1]+d.a[3])/2)<30})){SH.done=null;shReset();pSay='Shoot house reset. Open the entry door to start the timer.';pSayU=nowS+2}}
 /* bullets: every shot leaves a tracer from the muzzle to where it stopped; targets on that line take the hit */
 function rangeHits(n){for(const q of tr.slice(n)){const dx=q.x2-q.x1,dy=q.y2-q.y1,L2=dx*dx+dy*dy;if(!L2)continue;let best=null,bt=2;
 const test=(cx,cy,r,o)=>{const t=((cx-q.x1)*dx+(cy-q.y1)*dy)/L2;if(t<0||t>1)return;const px=q.x1+dx*t,py=q.y1+dy*t,d=Math.hypot(px-cx,py-cy);if(d<r&&t<bt){bt=t;best={o,px,py,d}}};
@@ -1119,15 +1127,15 @@ function decorTraining(){tiles(40,40,600,170,20);x.fillStyle='rgba(0,0,0,.18)';x
 for(const lx of [160,280,400,520])ln('rgba(232,194,74,.45)',[[lx,58],[lx,166]],1);for(const yy of LANE_Y)for(const L of LANES)ln('rgba(255,255,255,.12)',[[L-14,yy+13],[L+14,yy+13]],1);
 x.fillStyle='#e8c24a';x.font='700 9px sans-serif';x.textAlign='center';x.textBaseline='middle';LANES.forEach((lx,i)=>x.fillText(String(i+1),lx,184));
 planks(40,250,360,170,12,1);x.fillStyle='rgba(232,194,74,.35)';for(const q of [[100,262],[200,290],[300,290],[100,350],[260,380]]){x.beginPath();x.moveTo(q[0],q[1]-4);x.lineTo(q[0]+6,q[1]+3);x.lineTo(q[0]-6,q[1]+3);x.closePath();x.fill()}
-tiles(400,250,240,170,14);hubStairs(true);hubCommon(TRAINING);rr('#c4502a',70,226,60,14,2);x.fillStyle='#fff';x.font='700 7px sans-serif';x.fillText(SH.run?'RUN IN PROGRESS':'START',100,233.5);
+tiles(400,250,240,170,14);hubStairs(true);hubCommon(TRAINING);x.fillStyle='rgba(196,80,42,.85)';x.font='700 7px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(SH.run?'RUN IN PROGRESS':'ENTRY \u00b7 TIMER STARTS WHEN THE DOOR OPENS',150,243);for(let k=0;k<11;k++){x.fillStyle=k%2?'#1b1d21':'#e8e2d0';x.fillRect(SH.FIN-2,334+k*8,4,8);x.fillStyle=k%2?'#e8e2d0':'#1b1d21';x.fillRect(SH.FIN+2,334+k*8,4,8)}x.save();x.translate(SH.FIN+12,376);x.rotate(Math.PI/2);x.fillStyle='rgba(232,194,74,.8)';x.font='700 8px sans-serif';x.fillText('FINISH',0,0);x.restore();
 TRANGE.lanes.forEach(paperTarget);SH.targets.forEach(shTarget);
 const tr0=trainSave();rr('#1b1d21',430,214,200,18,2);x.fillStyle='#7affb0';x.font='700 7px "Barlow Condensed",sans-serif';x.textAlign='center';x.fillText('SHOOT HOUSE BEST '+(tr0.shBest?tr0.shBest.toFixed(1)+'s':'--')+'   ·   RANGE 5-SHOT BEST '+(tr0.rangeBest||'--'),530,223.5);
-hubLabels([['FIRING RANGE',340,204],['SHOOT HOUSE',220,413],['STAIRS',470,292],['AMMO',619,256]])}
+hubLabels([['FIRING RANGE',340,204],['SHOOT HOUSE',300,413],['EXIT',430,352],['STAIRS',470,292],['AMMO',619,256]])}
 function trainHud(){if(lvl!==HUB_U)return;x.font='600 20px "Barlow Condensed",sans-serif';x.textAlign='center';x.textBaseline='top';
-if(SH.run){const left=SH.targets.filter(t=>t.bad&&t.up).length,tm=nowS-SH.t0;x.fillStyle='rgba(0,0,0,.55)';x.fillRect(W/2-170,40,340,30);x.fillStyle='#e8c24a';x.fillText('SHOOT HOUSE  '+tm.toFixed(1)+'s'+(SH.pen?'  +'+SH.pen+'s':'')+'  ·  threats left '+left,W/2,44)}
+if(SH.run){const left=SH.targets.filter(t=>t.bad&&t.up).length,tm=nowS-SH.t0;x.fillStyle='rgba(0,0,0,.55)';x.fillRect(W/2-200,40,400,30);x.fillStyle='#e8c24a';x.fillText('SHOOT HOUSE  '+tm.toFixed(1)+'s'+(SH.pen?'  +'+SH.pen+'s':'')+'  ·  threats left '+left+(left?'':'  ·  GET TO THE FINISH'),W/2,44)}
 else if(SH.done&&nowS<pSayU+4){x.fillStyle='rgba(0,0,0,.55)';x.fillRect(W/2-170,40,340,30);x.fillStyle=SH.done.nb?'#7affb0':'#e8e2d0';x.fillText('RUN TIME '+SH.done.tot.toFixed(1)+'s'+(SH.done.nb?'  ·  NEW BEST':''),W/2,44)}}
 HUB_SPOTS[HUB_U]=[{x:470,y:390,label:'Go downstairs',act:()=>hubGo(HUB,470,330)},{x:585,y:290,label:'Ammo locker: refill',act:trainRefill},
-{x:100,y:236,get label(){return SH.run?'Restart shoot house run':'Start shoot house run'},act:shStart},...LANES.map((_,i)=>laneSpot(i))];
+];
 HUB_SPOTS[HUB].push({x:470,y:322,label:'Go upstairs: training floor',act:()=>hubGo(HUB_U,470,330)});
 HUB_POI[HUB_U]=[[200,230],[450,230],[600,230],[450,275],[560,380],[520,300]];
 
@@ -2051,7 +2059,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-024112';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-024702';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
