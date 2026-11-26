@@ -127,6 +127,8 @@ clip-path:polygon(0 3%,4% 0,100% 2%,99% 97%,95% 100%,0 98%)}
 #mn .co-box{display:flex;flex-direction:column;gap:8px;width:min(420px,100%);align-items:stretch}#mn .co-in{font:600 20px "Barlow Condensed",sans-serif;background:#14161a;color:#e8e2d0;border:1px solid #5a5a62;padding:6px 10px;box-sizing:border-box;width:100%}#mn .co-in:focus{outline:2px solid #e8c24a;outline-offset:1px}
 #mn .co-row{display:flex;gap:10px}#mn .co-codein{text-transform:uppercase;letter-spacing:6px;text-align:center;flex:1;min-width:0}#mn .co-or{font-size:16px;color:#a9a393;margin-top:6px}
 #mn .co-codebox{display:flex;flex-direction:column;align-items:center;border:2px dashed #e8c24a;padding:6px}#mn .co-codebox span{font-size:14px;color:#a9a393;letter-spacing:1px;text-transform:uppercase}#mn .co-codebox b{font:400 40px "Black Ops One",Impact,sans-serif;letter-spacing:8px;color:#e8c24a}
+#mn .co-vis{display:flex;border:1px solid #5a5a62}#mn .co-vis button{flex:1;font:600 19px "Barlow Condensed",sans-serif;padding:6px;background:transparent;color:#a9a393;border:0;cursor:pointer}#mn .co-vis button.on{background:#e8c24a;color:#14161a}#mn .co-vis button:focus-visible{outline:2px solid #e8e2d0;outline-offset:-3px}
+#mn .co-listh{margin-top:10px}#mn .co-rooms{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto}#mn .co-rooms li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border:1px solid #4a4840;background:rgba(255,255,255,.03);text-align:left}#mn .co-rooms li div{display:flex;flex-direction:column;min-width:0}#mn .co-rooms b{color:#e8e2d0;font-size:19px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#mn .co-rooms span{color:#a9a393;font-size:15px}#mn .co-rooms .b2{padding:4px 16px;font-size:18px}
 #mn .co-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;text-align:left}#mn .co-list li{display:flex;align-items:center;gap:8px;font-size:19px;color:#e8e2d0;padding:4px 8px;background:rgba(255,255,255,.04)}#mn .co-list i{width:10px;height:10px;display:inline-block}
 /* ---- Update banner ---- */
 #upd{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 32px);padding:10px 14px;background:#1c1f24;color:#e8e2d0;border:1px solid #e8c24a;font:600 18px "Barlow Condensed",sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.5)}#upd button{font:600 17px "Barlow Condensed",sans-serif;padding:4px 14px;cursor:pointer;background:#e8c24a;color:#14161a;border:0}#upd button.x{background:transparent;color:#a9a393;border:1px solid #5a5a62}
@@ -189,9 +191,11 @@ clip-path:polygon(0 3%,4% 0,100% 2%,99% 97%,95% 100%,0 98%)}
 <div id="s-main" class="sec"><h1 class="logo">Dynamic Entry</h1><p>A tactical room-clearing game. Take everyone alive.</p><button id="b-play" class="b" type="button">Play</button><button id="b-coop" class="b2" type="button">Co-op</button><button id="b-load" class="b2" type="button">Loadout</button><button id="b-how" class="b2" type="button">Controls</button><button id="b-save" class="b2" type="button">Progress</button><label class="vol">Music volume <input type="range" min="0" max="100" value="30" class="mvol" aria-label="Music volume"></label></div>
 <div id="s-coop" class="sec" hidden><h2>Co-op</h2><p>Clear missions with up to three friends. One player hosts, the others join with a code.</p>
 <div id="co-pre" class="co-box"><label class="sv-lab" for="co-name">Your name</label><input id="co-name" class="co-in" maxlength="16" autocomplete="off" spellcheck="false">
-<button id="co-host" class="b" type="button">Host a game</button><div class="co-or">or join a friend's game</div>
-<div class="co-row"><input id="co-code" class="co-in co-codein" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false" aria-label="Game code"><button id="co-join" class="b2" type="button">Join</button></div></div>
-<div id="co-room" class="co-box" hidden><div class="co-codebox"><span>Game code</span><b id="co-code-big"></b></div><ul id="co-list" class="co-list"></ul>
+<div id="co-vis" class="co-vis" role="radiogroup" aria-label="Game type"><button type="button" data-v="public" role="radio" aria-checked="true" class="on">Public</button><button type="button" data-v="private" role="radio" aria-checked="false">Private</button></div><p id="co-vis-hint" class="sv-hint"></p>
+<button id="co-host" class="b" type="button">Host a game</button><div class="co-or">or join a friend's private game with their code</div>
+<div class="co-row"><input id="co-code" class="co-in co-codein" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false" aria-label="Game code"><button id="co-join" class="b2" type="button">Join</button></div>
+<div class="lo-h co-listh">Public games</div><p id="co-rooms-msg" class="sv-hint" role="status"></p><ul id="co-rooms" class="co-rooms"></ul></div>
+<div id="co-room" class="co-box" hidden><div class="co-codebox"><span>Game code</span><b id="co-code-big"></b></div><p id="co-visline" class="sv-hint"></p><ul id="co-list" class="co-list"></ul>
 <div id="co-hostbox" class="co-box"><label class="sv-lab" for="co-lvl">Mission</label><select id="co-lvl" class="co-in"><option value="0">1. Tutorial</option><option value="1" selected>2. Library</option></select><p id="co-count" class="sv-hint"></p><button id="co-deploy" class="b" type="button">Deploy</button></div>
 <p id="co-wait" class="sv-hint">Waiting for the host to deploy...</p><button id="co-leave" class="b2" type="button">Leave game</button></div>
 <p id="co-msg" class="sv-msg" role="status"></p><button id="co-back" class="b2" type="button">Back</button></div>
@@ -1346,43 +1350,68 @@ setTimeout(()=>netJoined(T,asHost),30);return T}
 let PhotonLib=null;
 async function photonLoad(){if(PhotonLib)return PhotonLib;const r=await fetch(PHOTON_SDK);if(!r.ok)throw new Error('Could not download the Photon client.');const src=await r.text();const module={exports:{}};
 const req=n=>{if(n==='ws')return function(u,pr){return new WebSocket(u,pr)};throw new Error('Missing module '+n)};new Function('module','exports','require',src)(module,module.exports,req);return PhotonLib=module.exports}
-async function netPhotonT(code,asHost){const P=await photonLoad(),LBC=P.LoadBalancing.LoadBalancingClient,c=new LBC(P.ConnectionProtocol.Wss,PHOTON_APP_ID,'dynamic-entry-1'),room='DE-'+code;
-const T={id:0,c,send(cd,d,to){try{const o=to?{targetActors:[to]}:{receivers:P.LoadBalancing.Constants.ReceiverGroup.Others};c.raiseEvent(cd,JSON.stringify(d===undefined?null:d),o)}catch(e){}},leave(){try{c.disconnect()}catch(e){}},sent:false};
-c.onStateChange=st=>{if(st===LBC.State.JoinedLobby&&!T.sent){T.sent=true;if(asHost)c.createRoom(room,{maxPlayers:4,isVisible:false});else c.joinRoom(room)}
-else if(st===LBC.State.Joined){T.id=c.myActor().actorNr;netJoined(T,asHost)}
-else if(st===LBC.State.Disconnected&&NET.t===T)coopEnd('Disconnected from the co-op server.')};
+/* PH is the single Photon connection. While a player is on the Co-op screen it sits in Photon's lobby,
+   where it receives the list of public (visible) rooms. Hosting creates a room from there; joining joins one. */
+let PH=null;
+async function phEnsure(){if(PH&&!PH.dead)return PH;const P=await photonLoad(),LBC=P.LoadBalancing.LoadBalancingClient,c=new LBC(P.ConnectionProtocol.Wss,PHOTON_APP_ID,'dynamic-entry-1');
+const ph=PH={c,P,LBC,ready:false,dead:false,rooms:[],pending:null,T:null};
+c.onStateChange=st=>{if(ph!==PH)return;if(st===LBC.State.JoinedLobby){ph.ready=true;ph.rooms=c.availableRooms()||[];coopListUi();if(ph.pending){const f=ph.pending;ph.pending=null;f()}}
+else if(st===LBC.State.Joined&&ph.T){ph.T.id=c.myActor().actorNr;netJoined(ph.T,ph.T.asHost)}
+else if(st===LBC.State.Disconnected||st===LBC.State.Error){ph.dead=true;ph.ready=false;if(NET.t&&NET.t===ph.T)coopEnd('Disconnected from the co-op server.');coopListUi()}};
+c.onRoomList=()=>{ph.rooms=c.availableRooms()||[];coopListUi()};c.onRoomListUpdate=()=>{ph.rooms=c.availableRooms()||[];coopListUi()};
 c.onEvent=(cd,d,actor)=>{let v=null;try{v=JSON.parse(d)}catch(e){}if(cd===NC.BYE){netGone(actor);return}netOn(cd,v,actor)};
 c.onActorLeave=a=>netGone(a.actorNr);
 c.onError=(code,msg)=>{coopMsg('Co-op connection error: '+msg);coopFail()};
-c.onOperationResponse=(err,msg,op)=>{if(!err)return;coopMsg(err===32758?'No game with that code. Check the code with your host.':err===32765?'That game is full (4 players).':err===32766?'That code is taken. Try hosting again.':err===32757?'The co-op server is full right now (free tier limit). Try again later.':'Could not join: '+msg);coopFail()};
-c.connectToRegionMaster(PHOTON_REGION);return T}
+c.onOperationResponse=(err,msg)=>{if(!err)return;coopMsg(err===32758?'No game with that code. Check the code with your host.':err===32765?'That game is full (4 players).':err===32766?'That code is taken. Try hosting again.':err===32757?'The co-op server is full right now (free tier limit). Try again later.':'Could not join: '+msg);coopFail()};
+c.connectToRegionMaster(PHOTON_REGION);return ph}
+function phClose(){if(PH){PH.dead=true;try{PH.c.disconnect()}catch(e){}PH=null}}
+async function netPhotonT(code,asHost){const ph=await phEnsure(),c=ph.c,P=ph.P,room='DE-'+code;
+const T={id:0,asHost,send(cd,d,to){try{const o=to?{targetActors:[to]}:{receivers:P.LoadBalancing.Constants.ReceiverGroup.Others};c.raiseEvent(cd,JSON.stringify(d===undefined?null:d),o)}catch(e){}},leave(){phClose()}};ph.T=T;
+const go=()=>{if(asHost)c.createRoom(room,{maxPlayers:4,isVisible:!!NET.pub,customGameProperties:{h:coopName(),m:+($('co-lvl').value||1),s:0},propsListedInLobby:['h','m','s']});else c.joinRoom(room)};
+if(ph.ready)go();else ph.pending=go;return T}
+/* room details shown in the public list: host name, mission, and whether a mission is under way */
+function coopRoomProps(){const m=NET.inMission?lvl:+($('co-lvl').value||1),st=NET.inMission?1:0;if(NET.via==='photon'&&PH&&PH.c.isJoinedToRoom()&&NET.mode==='host'){try{const r=PH.c.myRoom();r.setCustomProperty('m',m);r.setCustomProperty('s',st)}catch(e){}}}
+/* local test mode (?mp=local): public hosts announce themselves to other tabs every second */
+const coList={ch:null,rooms:{},timer:0};
+function coLocalList(){if(coList.ch)return;coList.ch=new BroadcastChannel('de-coop-list');coList.ch.onmessage=e=>{const m=e.data;if(!m||!m.code)return;if(m.gone)delete coList.rooms[m.code];else coList.rooms[m.code]=Object.assign(m,{at:Date.now()});coopListUi()};
+coList.timer=setInterval(()=>{const now=Date.now();for(const k in coList.rooms)if(now-coList.rooms[k].at>3500)delete coList.rooms[k];if(NET.mode==='host'&&NET.pub)coList.ch.postMessage({code:NET.code,h:(NET.players[NET.id]||{}).name||coopName(),m:NET.inMission?lvl:+($('co-lvl').value||1),s:NET.inMission?1:0,n:Object.keys(NET.players).length,max:4});coopListUi()},1000)}
+function coopRooms(){if(coopLocal())return Object.values(coList.rooms).map(r=>({code:r.code,h:r.h,m:r.m,s:r.s,n:r.n,max:r.max||4}));
+if(!PH||!PH.ready)return null;return (PH.rooms||[]).filter(r=>r&&typeof r.name==='string'&&r.name.startsWith('DE-')&&!r.removed&&r.playerCount>0).map(r=>({code:r.name.slice(3),h:String(r.getCustomProperty('h')||'Officer'),m:+(r.getCustomProperty('m')||0),s:+(r.getCustomProperty('s')||0),n:r.playerCount,max:r.maxPlayers||4}))}
+function coopBrowse(){if(coopLocal()){coLocalList();coopListUi();return}if(!PHOTON_APP_ID)return;phEnsure().then(coopListUi).catch(()=>{const el=$('co-rooms-msg');if(el)el.textContent='Could not reach the co-op server. Check your connection.'})}
+function coopListUi(){const box=document.getElementById('co-rooms');if(!box||NET.mode)return;const rooms=coopRooms(),msg=$('co-rooms-msg');box.innerHTML='';
+if(rooms===null){msg.textContent='Looking for public games...';return}msg.textContent=rooms.length?'':'No public games right now. Host one and others can join it here.';
+rooms.sort((a,b)=>a.s-b.s||b.n-a.n);for(const r of rooms){const li=document.createElement('li'),info=document.createElement('div'),b=document.createElement('button'),full=r.n>=r.max;
+const t=document.createElement('b');t.textContent=r.h.slice(0,16)+"'s game";const d=document.createElement('span');d.textContent=((lv[r.m]||lv[1]).n)+' · '+r.n+'/'+r.max+' players · '+(r.s?'Mission in progress':'In the lobby');info.append(t,d);
+b.type='button';b.className='b2';b.textContent=full?'Full':'Join';b.disabled=full||!!NET.t;b.onclick=()=>coopJoinCode(r.code);li.append(info,b);box.appendChild(li)}}
 
 /* ---- lobby flow ---- */
-async function coopHost(){if(NET.t)return;const code=coopCode();coopMsg('Creating a game...');await coopConnect(code,true)}
+async function coopHost(){if(NET.t)return;NET.pub=coopVis==='public';const code=coopCode();coopMsg(NET.pub?'Creating a public game...':'Creating a private game...');await coopConnect(code,true)}
+let coopVis='public';function coopSetVis(v){coopVis=v;for(const b of document.querySelectorAll('#co-vis button')){const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on))}$('co-vis-hint').textContent=v==='public'?'Public: your game shows up in the list below for anyone to join.':'Private: hidden from the list. You get a code to share with friends.'}
+async function coopJoinCode(code){if(NET.t)return;$('co-code').value=code;await coopJoin()}
 async function coopJoin(){if(NET.t)return;const code=($('co-code').value||'').trim().toUpperCase().replace(/[^A-Z]/g,'');if(code.length!==4){coopMsg('Enter the 4-letter code from your host.');return}coopMsg('Joining '+code+'...');await coopConnect(code,false)}
 async function coopConnect(code,asHost){if(!coopLocal()&&!PHOTON_APP_ID){coopMsg('Co-op is not switched on yet: the game needs a Photon App ID.');return}NET.code=code;
 try{NET.t=coopLocal()?netLocalT(code,asHost):await netPhotonT(code,asHost);NET.via=coopLocal()?'local':'photon'}catch(e){coopMsg(e.message||'Could not reach the co-op server.');coopFail()}}
 function netJoined(T,asHost){NET.id=T.id;if(asHost){NET.mode='host';NET.host=T.id;NET.players={};NET.players[T.id]={name:coopName()};coopRoster();coopLobbyUi()}
 else{coopMsg('Connected. Saying hello to the host...');T.send(NC.HELLO,{name:coopName(),lo:LO});clearTimeout(NET.joinTimer);NET.joinTimer=setTimeout(()=>{if(NET.mode!=='client'){coopMsg('No game with that code. Check the code with your host.');coopFail()}},coopLocal()?1500:8000)}}
-function coopFail(){const t=NET.t;NET.t=null;NET.mode=null;if(t)t.leave();coopLobbyUi()}
-function coopLeave(){if(NET.t){NET.t.send(NC.BYE,null);NET.t.leave()}coopReset();coopLobbyUi()}
-function coopReset(){clearTimeout(NET.joinTimer);NET.mode=null;NET.t=null;NET.players={};NET.av={};NET.inMission=false;pDown=false}
-function coopEnd(msg){const was=NET.mode;coopReset();if(!was)return;showUi('coop');coopMsg(msg)}
+function coopFail(){const t=NET.t;NET.t=null;NET.mode=null;if(t)t.leave();coopLobbyUi();if(ui==='coop')setTimeout(coopBrowse,300)}
+function coopLeave(){if(NET.t){NET.t.send(NC.BYE,null);NET.t.leave()}coopReset();coopLobbyUi();if(ui==='coop')coopBrowse()}
+function coopReset(){clearTimeout(NET.joinTimer);if(coList.ch&&NET.mode==='host'&&NET.pub)coList.ch.postMessage({code:NET.code,gone:1});NET.mode=null;NET.t=null;NET.pub=false;NET.players={};NET.av={};NET.inMission=false;pDown=false}
+function coopEnd(msg){const was=NET.mode;coopReset();if(!was)return;showUi('coop');coopLobbyUi();coopMsg(msg);setTimeout(coopBrowse,300)}
 function coopRoster(){if(NET.mode!=='host')return;const pl=Object.keys(NET.players).map(id=>[+id,NET.players[id].name]);NET.t.send(NC.ROSTER,{host:NET.id,pl,code:NET.code});coopLobbyUi()}
 function netGone(id){if(!NET.mode)return;if(NET.mode==='client'&&id===NET.host){coopEnd('The host left, so the game ended.');return}
 if(NET.mode==='host'&&NET.players[id]){const av=NET.av[id];if(av&&av.esc){av.esc.escBy=0}delete NET.av[id];const n=NET.players[id].name;delete NET.players[id];coopRoster();if(NET.inMission){pSay=n+' left the game.';pSayU=nowS+2}}}
 function coopLobbyUi(){const sec=document.getElementById('s-coop');if(!sec)return;const inRoom=!!NET.mode;$('co-pre').hidden=inRoom;$('co-room').hidden=!inRoom;
-if(!inRoom)return;$('co-code-big').textContent=NET.code;const ul=$('co-list');ul.innerHTML='';Object.keys(NET.players).forEach((id,i)=>{const li=document.createElement('li');const dot=document.createElement('i');dot.style.background=CO_COL[i%4];li.appendChild(dot);li.appendChild(document.createTextNode(NET.players[id].name+(+id===NET.host?' (host)':'')+(+id===NET.id?' (you)':'')));ul.appendChild(li)});
-const host=NET.mode==='host';$('co-hostbox').hidden=!host;$('co-wait').hidden=host;if(host){const n=Object.keys(NET.players).length;$('co-deploy').disabled=false;$('co-count').textContent=n+' of 4 players'}coopMsg(host?'Share the code. Friends pick Co-op, then Join.':'')}
+if(!inRoom)return;$('co-code-big').textContent=NET.code;$('co-visline').textContent=NET.mode==='host'?(NET.pub?'Public game: it is listed for anyone to join. Friends can also use the code.':'Private game: only people with this code can join.'):'';const ul=$('co-list');ul.innerHTML='';Object.keys(NET.players).forEach((id,i)=>{const li=document.createElement('li');const dot=document.createElement('i');dot.style.background=CO_COL[i%4];li.appendChild(dot);li.appendChild(document.createTextNode(NET.players[id].name+(+id===NET.host?' (host)':'')+(+id===NET.id?' (you)':'')));ul.appendChild(li)});
+const host=NET.mode==='host';$('co-hostbox').hidden=!host;$('co-wait').hidden=host;if(host){const n=Object.keys(NET.players).length;$('co-deploy').disabled=false;$('co-count').textContent=n+' of 4 players'}coopMsg(host?(NET.pub?'Waiting for players. Share the code to bring friends in too.':'Share the code. Friends pick Co-op, then type it in and Join.'):'')}
 function coopPlayers(){return Object.keys(NET.players).map(Number)}
 
 /* ---- starting a mission ---- */
 function coopDeploy(){if(NET.mode!=='host')return;const L=+$('co-lvl').value||0;coopStartHost(L)}
-function coopStartHost(L){NET.inMission=true;startLevel(L);hideUi();pDown=false;mates=[];tutF.op=1;const ids=coopPlayers().filter(id=>id!==NET.id);NET.av={};
+function coopStartHost(L){NET.inMission=true;startLevel(L);coopRoomProps();hideUi();pDown=false;mates=[];tutF.op=1;const ids=coopPlayers().filter(id=>id!==NET.id);NET.av={};
 ids.forEach((id,k)=>{const old=NET.players[id];NET.av[id]={id,name:old.name,x:-116+(k+1)*12,y:262+(k%2?8:-8),a:0,wep:1,LO:old.lo||LO,hp:100,down:false,esc:null,trail:[],fbs:2,col:CO_COL[(coopPlayers().indexOf(id))%4],say:'',sayU:0}});
 NET.t.send(NC.START,{lvl:L,S:coopSnap(true)})}
 function coopStartClient(d){NET.inMission=true;startLevel(d.lvl);hideUi();pDown=false;mates=[];tutF.op=1;const me=coopPlayers().indexOf(NET.id);p.x=-116+me*12;p.y=262+(me%2?8:-8);trail=[{x:p.x,y:p.y}];coopApply(d.S,true)}
-function coopToLobby(){if(NET.mode==='host'){NET.inMission=false;NET.t.send(NC.LOBBY,null)}showUi('coop');coopLobbyUi()}
+function coopToLobby(){if(NET.mode==='host'){NET.inMission=false;NET.t.send(NC.LOBBY,null);coopRoomProps()}showUi('coop');coopLobbyUi()}
 function coopRetry(){if(NET.mode==='host')coopStartHost(lvl);else{pSay='Only the host can restart.';pSayU=nowS+1.4}}
 
 /* ---- messages ---- */
@@ -1480,10 +1509,11 @@ for(const[id,dn,h]of rows){const nm=(NET.players[id]||{}).name||'Officer';x.fill
 if(pDown){x.font='600 18px "Barlow Condensed",sans-serif';x.textAlign='center';x.fillStyle='#d94a3a';x.fillText("You're down. Your team can still finish the mission.",W/2-OX,H-OY-70)}}
 
 /* ---- lobby buttons ---- */
-$('b-coop').onclick=()=>{showUi('coop');coopLobbyUi();try{$('co-name').value=coopName()}catch(e){}if(!coopLocal()&&!PHOTON_APP_ID)coopMsg('Co-op is not switched on yet: the game needs a Photon App ID.')};
+$('b-coop').onclick=()=>{showUi('coop');coopLobbyUi();coopSetVis(coopVis);coopBrowse();try{$('co-name').value=coopName()}catch(e){}if(!coopLocal()&&!PHOTON_APP_ID)coopMsg('Co-op is not switched on yet: the game needs a Photon App ID.')};
 $('co-name').addEventListener('input',()=>{const v=$('co-name').value.replace(/[^\w .'-]/g,'').slice(0,16);try{localStorage.setItem('de_name',v)}catch(e){}});
 $('co-host').onclick=coopHost;$('co-join').onclick=coopJoin;$('co-code').addEventListener('keydown',e=>{if(e.key==='Enter'){e.stopPropagation();coopJoin()}});
-$('co-deploy').onclick=coopDeploy;$('co-leave').onclick=coopLeave;$('co-back').onclick=()=>{if(NET.mode)coopLeave();showMain()};
+$('co-deploy').onclick=coopDeploy;$('co-leave').onclick=coopLeave;$('co-back').onclick=()=>{if(NET.mode)coopLeave();if(!NET.t)phClose();showMain()};
+for(const b of document.querySelectorAll('#co-vis button'))b.onclick=()=>coopSetVis(b.dataset.v);$('co-lvl').addEventListener('change',coopRoomProps);
 addEventListener('beforeunload',()=>{if(NET.t){try{NET.t.send(NC.BYE,null);NET.t.leave()}catch(e){}}});
 
 /* sounds made in the host's world are replayed for teammates */
@@ -1904,7 +1934,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-012426';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-012954';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
