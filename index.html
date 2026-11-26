@@ -501,7 +501,7 @@ const i=who!==undefined&&al.includes(who)?who:al[Math.floor(Math.random()*al.len
 function mateThreat(m){let b=null,bd=230;for(const q of sus){if(q.t===0||q.cuffed||q.dead||q.loaded||q.sur)continue;const d=Math.hypot(q.x-m.x,q.y-m.y);if(d<bd&&ffLos(m,q)){bd=d;b=q}}return b}
 function lifeShot(){for(const m of mates)m.fl=nowS+.3;if(LO.prim!=='bean'){if(Math.random()<(LO.prim==='ar15'?.12:.5))chat('shotL')}else if(Math.random()<.35)chat('shot')}
 function lifeTick(dt){cloudTick();if(!startSaid&&nowS-startAt>1.6){startSaid=true;chat('start',true,0)}
-if(hp<lastHp&&hp>0)chat('hurt',true,hp<=50&&!mates[MED].down?MED:undefined);lastHp=hp;
+if(hp<lastHp&&hp>0)chat('hurt',true,hp<=50&&mates[MED]&&!mates[MED].down?MED:undefined);lastHp=hp;
 for(const q of sus){if(q.t===3&&q.ch&&!q.kc&&!q.cuffed){q.kc=1;q.spot=1;chat('knife',true)}}
 const r=roomAt(p.x,p.y),ri=r?rooms.indexOf(r):-1;if(r&&!visited.has(ri)){visited.add(ri);if(!isHub())pendClear={r,t:nowS+2.4}}
 if(pendClear&&nowS>=pendClear.t){const rr2=pendClear.r;pendClear=null;if(!sus.some(q=>!q.cuffed&&!q.dead&&roomAt(q.x,q.y)===rr2))chat('clear')}
@@ -526,13 +526,13 @@ if(blk){const aa=Math.atan2(th.y-m.y,th.x-m.x),sd=i%2?1:-1,w=18+i*4;m.px=(m.px||
 if(!th||nowS<(th.stun||0)||th.sur){m.px=(m.px||0)*(1-Math.min(1,dt*3));m.py=(m.py||0)*(1-Math.min(1,dt*3))}
 m.rk=(m.rk||0)+(((m.idle>3&&nowS>(m.alertU||0))?1:0)-(m.rk||0))*Math.min(1,dt*3)}}
 function doorSide(d){const mx=(d.a[0]+d.a[2])/2,my=(d.a[1]+d.a[3])/2,hor=d.a[1]===d.a[3];let nx=hor?0:1,ny=hor?1:0;if((p.x-mx)*nx+(p.y-my)*ny<0){nx=-nx;ny=-ny}return{mx,my,nx,ny,rm:roomAt(mx-nx*10,my-ny*10)}}
-function openMenu(){if(isHub()){hubNoFire('Nothing to clear in here.');return}if(won||lost||op||menu)return;if(!mates.some(m=>!m.down)){pSay='Squad is down';pSayU=nowS+1.2;return}
+function openMenu(){if(isHub()){hubNoFire('Nothing to clear in here.');return}if(won||lost||op||menu)return;if(!mates.length){pSay='No AI squad in co-op. Coordinate with your team.';pSayU=nowS+1.6;return}if(!mates.some(m=>!m.down)){pSay='Squad is down';pSayU=nowS+1.2;return}
 let b=null,bd=260;for(const d of doors){if(d.locked)continue;const q=doorSide(d),dd=Math.hypot(q.mx-p.x,q.my-p.y);if(dd<bd&&q.rm&&canSee({x:q.mx,y:q.my})){bd=dd;b=d}}
 if(!b){pSay='No door in sight';pSayU=nowS+1.2;return}menu={door:b}}
 function drawMenu(){if(!menu)return;const w=72,rh=12,bx=4,by=17,px=fx*420,py=fy*300;
 menu.r=[[bx,by,w,rh],[bx,by+rh,w,rh]];x.save();x.setTransform(1,0,0,1,0,0);x.fillStyle='rgba(10,10,14,.88)';x.fillRect(bx-2,by-2,w+4,rh*2+4);x.font='600 8px sans-serif';x.textBaseline='middle';
 [['1','Flash and clear'],['2','Clear']].forEach((o,i)=>{const r=menu.r[i],hov=px>=r[0]&&px<=r[0]+r[2]&&py>=r[1]&&py<=r[1]+r[3];x.fillStyle=hov?'#ffffff':'#d9d5c9';x.fillRect(r[0],r[1],r[2],r[3]-1);x.fillStyle='#1c1c1f';x.fillRect(r[0]+2,r[1]+2,7,7);x.fillStyle='#eee';x.textAlign='center';x.fillText(o[0],r[0]+5.5,r[1]+6);x.fillStyle='#1c1c1f';x.textAlign='left';x.fillText(o[1],r[0]+13,r[1]+6)});x.restore()}
-function startOp(fl){const d=menu.door;menu=null;if(op)return;const q=doorSide(d);if(!q.rm)return;const al=[0,1,2].filter(i=>!mates[i].down&&!mates[i].job);if(!al.length)return;
+function startOp(fl){const d=menu.door;menu=null;if(op)return;const q=doorSide(d);if(!q.rm)return;const al=[0,1,2].filter(i=>mates[i]&&!mates[i].down&&!mates[i].job);if(!al.length)return;
 tutF.op=1;op={d,mx:q.mx,my:q.my,nx:q.nx,ny:q.ny,rm:q.rm,fl,st:0,t:nowS,al};mates[al[0]].say=fl?'Flash and clear!':'Clear!';mates[al[0]].sayU=nowS+1.5}
 function walk(m,tx,ty,dt,sp){const dx=tx-m.x,dy=ty-m.y,d=Math.hypot(dx,dy);if(d<3)return true;const s=Math.min(d,sp*dt);m.x+=dx/d*s;m.y+=dy/d*s;m.a+=norm(Math.atan2(dy,dx)-m.a)*Math.min(1,dt*10);return false}
 function roomPts(rm,mx,my){const pts=[];for(let a=rm.x+14;a<rm.x+rm.w-10;a+=14)for(let b=rm.y+14;b<rm.y+rm.h-10;b+=14){if(furn.some(f=>a>f[0]-9&&a<f[0]+f[2]+9&&b>f[1]-9&&b<f[1]+f[3]+9))continue;pts.push([a,b])}
@@ -574,7 +574,7 @@ else{const tg=o.tg[o.k],m=M[o.al2[o.k%o.al2.length]];if(Math.hypot(tg.x-m.x,tg.y
 else{if(!o.hold)o.hold=tm+.9;if(tm>=o.hold){tg.cuffed=true;if(tg.t===0&&!tg.freed){tg.freed=true;award(tg)}else if(tg.t)award(tg);tg.say=tg.t?'Okay!':'Thank you!';tg.sayU=tm+1.2;o.k++;o.hold=0;checkWin()}}}}
 else if(o.st===5){let ok=true;o.al.forEach(i=>{if(!M[i].down&&!walk(M[i],o.mx,o.my,dt,170))ok=false});if(ok||tm-o.t>3.5)op=null}}
 function startStack(d){const mx=(d.a[0]+d.a[2])/2,my=(d.a[1]+d.a[3])/2,hor=d.a[1]===d.a[3];let nx=hor?0:1,ny=hor?1:0;if((p.x-mx)*nx+(p.y-my)*ny<0){nx=-nx;ny=-ny}
-const al=[0,1,2].filter(i=>!mates[i].down&&!mates[i].job);stk={d,mx,my,nx,ny,al,ready:false,hits:0,cd:0,sw:0,brk:0,prog:0,n:0,ph:Math.random()*2,p:0,zc:.5,fresh:true,res:-1,resU:0,sx:al.map((i,k)=>p.x+nx*18*(k+1)),sy:al.map((i,k)=>p.y+ny*18*(k+1))};pSay='Stack up!';pSayU=nowS+1.2}
+const al=[0,1,2].filter(i=>mates[i]&&!mates[i].down&&!mates[i].job);stk={d,mx,my,nx,ny,al,ready:false,hits:0,cd:0,sw:0,brk:0,prog:0,n:0,ph:Math.random()*2,p:0,zc:.5,fresh:true,res:-1,resU:0,sx:al.map((i,k)=>p.x+nx*18*(k+1)),sy:al.map((i,k)=>p.y+ny*18*(k+1))};pSay='Stack up!';pSayU=nowS+1.2}
 function ramDoor(d){if(won||lost)return;if(!stk||stk.d!==d){startStack(d);return}swing()}
 /* ---- Hearing: gunshots alert suspects within earshot. Walls muffle the sound, so it carries
    about half as far through them. Alerted gunmen turn toward the noise and hold their angle; knifemen come to investigate. ---- */
@@ -593,10 +593,10 @@ if(s.ready&&!s.brk){if(!s.fresh&&tm>=s.cd){s.zc=.25+Math.random()*.5;s.fresh=tru
 if(s.brk&&tm>=s.brk){const d=s.d;d.open=true;d.aj=true;d.broken=true;d.locked=false;d.brkAt=tm;burst(s,tm);shake=1;playDoor();pSay='Crash!';pSayU=tm+.8;build();stk=null;const l=mates.find(m=>!m.down);if(l){l.say='Door down!';l.sayU=tm+1.2}
 for(const c of sus)if((c.t===1||c.t===3)&&!c.cuffed&&!c.sur&&Math.hypot(c.x-s.mx,c.y-s.my)<260){c.al=tm+4;c.lx=s.mx;c.ly=s.my;c.rt=tm+.6}}}
 const mname=['Hayes','Park','Rivera'],MED=2,mglow=['rgba(232,194,74,.3)','rgba(79,163,224,.3)','rgba(232,232,232,.3)'];
-function callMedic(){if(won||lost||udc||heal)return;if(isHub()){pSay='Rivera is in the briefing room. Grab a coffee instead.';pSayU=nowS+1.6;return}const m=mates[MED],say=t=>{pSay=t;pSayU=nowS+1.2};
+function callMedic(){if(won||lost||udc||heal)return;if(isHub()){pSay='Rivera is in the briefing room. Grab a coffee instead.';pSayU=nowS+1.6;return}const m=mates[MED],say=t=>{pSay=t;pSayU=nowS+1.2};if(!m){if(kits<=0){say('Out of medkits');return}if(hp>=100){say('Already at full health');return}kits--;if(NET.mode==='client'){coopActSend('heal')}else hp=Math.min(100,hp+50);say('Patched up (+50)');return}
 if(m.down){say('Medic is down');return}if(m.job){say('Medic is escorting someone');return}if(kits<=0){say('Out of medkits');return}if(hp>=100){say('Already at full health');return}if(op||stk){say('Squad is busy');return}
 kits--;heal={st:0,t:nowS,left:2.5,acc:0};say('Medic!');m.say='On my way!';m.sayU=nowS+1.2}
-function updHeal(dt,tm){const m=mates[MED];if(m.down||op||stk){heal=null;return}
+function updHeal(dt,tm){const m=mates[MED];if(!m||m.down||op||stk){heal=null;return}
 const tx=p.x-Math.cos(ang)*16,ty=p.y-Math.sin(ang)*16;
 if(heal.st===0){if(walk(m,tx,ty,dt,200)||tm-heal.t>3){heal.st=1;heal.t=tm}}
 else{m.x+=(tx-m.x)*Math.min(1,dt*6);m.y+=(ty-m.y)*Math.min(1,dt*6);m.a=Math.atan2(p.y-m.y,p.x-m.x);heal.acc+=Math.min(100-hp,16*dt);const w=Math.floor(heal.acc);if(w>0){hp+=w;heal.acc-=w}
@@ -704,7 +704,7 @@ const out=[];let cur=[ax,ay],k=0;while(k<pts.length){let far=k;for(let q=pts.len
 function followPath(m,j,dt,sp){while(j.path&&j.path.length){const w=j.path[0];if(walk(m,w[0],w[1],dt,sp)){j.path.shift();continue}return false}return true}
 function nearestCar(q){let b=null,bd=1e9;for(const o of yard){if(o.k!=='cop')continue;const d=Math.hypot(o.r[0]+o.r[2]/2-q.x,o.r[1]+o.r[3]/2-q.y);if(d<bd){bd=d;b=o}}return b}
 function orderEscort(){if(won||lost||paused)return;let q=esc;if(!q){let b=null,bd=70;for(const s of sus){if(!s.cuffed||s.dead||s.loaded||s.escBy)continue;const d=Math.hypot(p.x-s.x,p.y-s.y);if(d<bd&&canSee(s)){bd=d;b=s}}q=b}
-if(!q){pSay='No one cuffed nearby';pSayU=nowS+1;return}
+if(!q){pSay='No one cuffed nearby';pSayU=nowS+1;return}if(!mates.length){pSay='No AI squad in co-op. Escort them yourself (E).';pSayU=nowS+1.6;return}
 let m=null,md=1e9;mates.forEach((mm,i)=>{if(mm.down||mm.job||(heal&&i===MED)||(op&&(op.al||[]).includes(i))||(stk&&(stk.al||[]).includes(i)))return;const d=Math.hypot(mm.x-q.x,mm.y-q.y);if(d<md){md=d;m=mm}});
 if(!m){pSay='Squad is busy';pSayU=nowS+1;return}if(esc===q)esc=null;q.escBy=m;m.job={stage:'fetch',q,path:null,rp:0};
 pSay=['Take this one to the car.','Get them out of here.','Car. Now.'][Math.floor(Math.random()*3)];pSayU=nowS+1.2;m.say=['On it.','Moving them out.',"I got 'em, boss."][Math.floor(Math.random()*3)];m.sayU=nowS+1.4}
@@ -907,7 +907,7 @@ x.fillStyle='rgba(10,10,14,.75)';x.fillRect(8,H-58,74,20);x.fillStyle='#3ddc6a';
 x.fillStyle='rgba(10,10,14,.75)';x.fillRect(8,H-32,198,24);x.font='600 15px sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillStyle='#d9d5c9';x.fillText('HP',14,H-20);
 x.fillStyle='#2a2a30';x.fillRect(38,H-26,104,12);const hr=hp/100;x.fillStyle=hr>.6?'#4fd36e':hr>.3?'#e8c24a':'#d94a3a';x.fillRect(38,H-26,104*hr,12);x.fillStyle='#d9d5c9';x.fillText(String(hp),148,H-20);
 for(let i=0;i<3;i++){const kx=176+i*10;x.fillStyle=i<kits?'#f2f2f2':'#4a4a50';x.fillRect(kx,H-25,9,9);x.fillStyle=i<kits?'#d94a3a':'#2a2a30';x.fillRect(kx+3,H-24,3,7);x.fillRect(kx+1.5,H-22,6,3)}
-if(hp<=40&&hp>0&&kits>0&&!mates[MED].down&&!heal&&!lost){const pu=.6+.4*Math.sin(nowS*8);x.fillStyle='rgba(10,10,14,.8)';x.fillRect(212,H-32,74,24);x.fillStyle='rgba(232,232,232,'+pu+')';x.fillRect(217,H-29,18,18);x.fillStyle='#1c1c1f';x.textAlign='center';x.fillText('H',226,H-19);x.fillStyle='#e8e8e8';x.textAlign='left';x.fillText('Medic',240,H-19)}
+if(hp<=40&&hp>0&&kits>0&&(mates[MED]?!mates[MED].down:coopOn())&&!heal&&!lost){const pu=.6+.4*Math.sin(nowS*8);x.fillStyle='rgba(10,10,14,.8)';x.fillRect(212,H-32,74,24);x.fillStyle='rgba(232,232,232,'+pu+')';x.fillRect(217,H-29,18,18);x.fillStyle='#1c1c1f';x.textAlign='center';x.fillText('H',226,H-19);x.fillStyle='#e8e8e8';x.textAlign='left';x.fillText('Medic',240,H-19)}
 x.fillStyle='rgba(10,10,14,.72)';x.fillRect(W-92,H-32,84,24);
 if(wep===3){x.font='600 11px sans-serif';x.textAlign='right';x.textBaseline='middle';x.fillStyle='#e8c24a';x.fillText(LO.tool==='breach'?'BREACHER':LO.tool==='ram'?'RAM':'MIRROR',W-12,H-20)}else if(wep===2){const sp=78/PCAP;for(let i=0;i<PCAP;i++){x.fillStyle=i<pAmmo?'#d9b34a':'#4a4a50';x.fillRect(W-88+i*sp,H-27,Math.min(7,sp-2.5),14);x.fillStyle=i<pAmmo?'#f2e6b0':'#4a4a50';x.fillRect(W-88+i*sp,H-27,Math.min(7,sp-2.5),3)}}else{if(LO.prim==='ar15'){for(let i=0;i<SG_CAP;i++){x.fillStyle=i<ammo?(loAmmo()==='tracer'&&i%3===2?'#ff8a2a':'#d9b34a'):'#3a3a40';x.fillRect(W-87+i*2.45,H-27,1.8,14)}}else for(let i=0;i<SG_CAP;i++){x.fillStyle=i<ammo?(LO.prim==='m37'?'#b8382b':'#e07a2a'):'#4a4a50';x.fillRect(W-86+i*12,H-28,7,16);x.fillStyle=i<ammo?'#d9d5c9':'#4a4a50';x.fillRect(W-86+i*12,H-28,7,4)}}
 const wr=wep===2;x.fillStyle='rgba(10,10,14,.72)';x.fillRect(W-92,H-58,84,20);if(wr){rr('#4a4d54',W-86,H-54,8,14,1);rr('#d9b34a',W-85,H-56,6,3,0);rr('#2a2d31',W-86,H-44,8,3,1)}else if(LO.prim==='ar15'){rr('#2a2c30',W-86,H-55,7,13,1.5);rr('#d9b34a',W-85,H-56,5,2.5,0)}else{rr('#c8452e',W-85,H-55,6,10,1);rr('#d9b34a',W-85,H-47,6,4,0)}x.font='600 14px sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillStyle='#eee';x.fillText(wep===3?'slot 3':'x '+(wr?mags+(LO.side==='magnum'?(mags===1?' loader':' loaders'):(mags===1?' mag':' mags')):sRes+(LO.prim==='ar15'?' rds':' shells')),W-72,H-48);
@@ -1378,10 +1378,10 @@ function coopPlayers(){return Object.keys(NET.players).map(Number)}
 
 /* ---- starting a mission ---- */
 function coopDeploy(){if(NET.mode!=='host')return;const L=+$('co-lvl').value||0;coopStartHost(L)}
-function coopStartHost(L){NET.inMission=true;startLevel(L);hideUi();pDown=false;const ids=coopPlayers().filter(id=>id!==NET.id);NET.av={};
+function coopStartHost(L){NET.inMission=true;startLevel(L);hideUi();pDown=false;mates=[];tutF.op=1;const ids=coopPlayers().filter(id=>id!==NET.id);NET.av={};
 ids.forEach((id,k)=>{const old=NET.players[id];NET.av[id]={id,name:old.name,x:-116+(k+1)*12,y:262+(k%2?8:-8),a:0,wep:1,LO:old.lo||LO,hp:100,down:false,esc:null,trail:[],fbs:2,col:CO_COL[(coopPlayers().indexOf(id))%4],say:'',sayU:0}});
 NET.t.send(NC.START,{lvl:L,S:coopSnap(true)})}
-function coopStartClient(d){NET.inMission=true;startLevel(d.lvl);hideUi();pDown=false;const me=coopPlayers().indexOf(NET.id);p.x=-116+me*12;p.y=262+(me%2?8:-8);trail=[{x:p.x,y:p.y}];coopApply(d.S,true)}
+function coopStartClient(d){NET.inMission=true;startLevel(d.lvl);hideUi();pDown=false;mates=[];tutF.op=1;const me=coopPlayers().indexOf(NET.id);p.x=-116+me*12;p.y=262+(me%2?8:-8);trail=[{x:p.x,y:p.y}];coopApply(d.S,true)}
 function coopToLobby(){if(NET.mode==='host'){NET.inMission=false;NET.t.send(NC.LOBBY,null)}showUi('coop');coopLobbyUi()}
 function coopRetry(){if(NET.mode==='host')coopStartHost(lvl);else{pSay='Only the host can restart.';pSayU=nowS+1.4}}
 
@@ -1413,7 +1413,8 @@ else if(d.k==='force')asRemote(av,()=>{const dr=nearDoor()||toolDoor();if(dr&&!d
 else if(d.k==='fb')asRemote(av,throwFb);
 else if(d.k==='light')asRemote(av,()=>{const w=nearSw();if(w){rooms[w[0]].on=!rooms[w[0]].on}});
 else if(d.k==='neg')asRemote(av,bargain);
-else if(d.k==='stick')asRemote(av,()=>{nStick=Math.max(nStick,1);dropStick()})}
+else if(d.k==='stick')asRemote(av,()=>{nStick=Math.max(nStick,1);dropStick()});
+else if(d.k==='heal'&&av.hp<100){av.hp=Math.min(100,av.hp+50);av.say='Patched up';av.sayU=nowS+1.2}}
 function coopTargets(){if(NET.mode!=='host')return[];return Object.values(NET.av).filter(a=>!a.down)}
 function coopAnyAlive(){return coopTargets().length>0}
 function coopPlayerDown(msg){if(NET.mode==='host'&&NET.inMission&&coopAnyAlive()){pDown=true;hp=0;pSay="I'm down! Finish it!";pSayU=nowS+2;udc=null;stk=null;return}lost=msg;lostAt=nowS}
@@ -1438,7 +1439,7 @@ function coopSnd(k){if(NET.mode==='host'&&NET.inMission)NET.sndQ.push([k,NET.act
 
 /* ---- client: apply the host's world ---- */
 function coUnpack(o,q,snap){for(const k in q){const v=q[k];if(CO_T.has(k))o[k]=v?nowS+v:0;else if((k==='x'||k==='y')&&!snap&&typeof o[k]==='number'){o[k==='x'?'tx':'ty']=v}else o[k]=v}if(snap||o.tx===undefined){o.tx=o.x;o.ty=o.y}}
-function coopApply(S,snap){tLeft=S.t;score=S.sc;kills=S.k;hk=S.hk;unsavedN=S.un;
+function coopApply(S,snap){tLeft=S.t;score=S.sc;kills=S.k;hk=S.hk;unsavedN=S.un;if(mates.length)mates=[];
 if(S.s.length!==sus.length)sus=S.s.map(()=>({}));S.s.forEach((q,i)=>coUnpack(sus[i],q,snap));
 S.m.forEach((q,i)=>{if(mates[i])coUnpack(mates[i],q,snap)});
 let rb=false;S.d.forEach((v,i)=>{const dd=doors[i];if(!dd)return;const o=!!v[0],br=!!v[2];if(dd.open!==o||dd.broken!==br||dd.locked!==!!v[1])rb=true;if(br&&!dd.broken){const q=doorSide(dd);burst({mx:q.mx,my:q.my,nx:q.nx,ny:q.ny},nowS);shake=Math.max(shake,.6)}else if(o!==dd.open)playDoorMove(o);dd.open=o;dd.locked=!!v[1];dd.broken=br;if(br)dd.aj=true;dd.hole=!!v[3];dd.kick=!!v[4];if(v[5]>=0)dd.hp=v[5]});if(rb||snap)build();
@@ -1461,7 +1462,7 @@ if(k==='f'||k===' '){coopFire();return true}
 if(k==='g'){if(fbs>0){fbs--;coopActSend('fb')}else{pSay='No flashbangs left';pSayU=nowS+1}return true}
 if(k==='t'){coopActSend('light');return true}if(k==='n'){coopActSend('neg');pSay='Drop it! Hands up!';pSayU=nowS+1.4;return true}
 if(k==='b'){if(nStick>0){nStick--;coopActSend('stick')}return true}
-if(k==='c'||k==='q'||k==='h'){pSay='Squad orders come from the host.';pSayU=nowS+1.4;return true}
+if(k==='c'||k==='q'){pSay='No AI squad in co-op. Coordinate with your team.';pSayU=nowS+1.6;return true}
 if(k==='enter')return true;return false}
 
 /* ---- drawing teammates ---- */
@@ -1903,7 +1904,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-011745';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-012426';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
