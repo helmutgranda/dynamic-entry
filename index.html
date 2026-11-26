@@ -894,7 +894,7 @@ const squad=op?(op.al2||op.al).map(i=>mates[i]).filter(m=>m&&!m.down):[],follow=
 const viewW=zoom===1?cam.vw:840/zoom,sc=420/viewW,tx=-sc*(cam.cx-viewW/2)+(shake>0?(Math.random()-.5)*shake*6:0),ty=-sc*(cam.cy-viewW*.357143)+(shake>0?(Math.random()-.5)*shake*6:0);shake=Math.max(0,shake-dt*3);x.setTransform(1,0,0,1,0,0);x.fillStyle='#05090b';x.fillRect(0,0,420,300);x.setTransform(sc,0,0,sc,tx,ty);o.setTransform(sc,0,0,sc,tx,ty);
 mx=cam.cx-viewW/2+fx*viewW;my=cam.cy-viewW*.357143+fy*viewW*.714286;if(udc&&(udc.d.open||won||lost))udc=null;if(!udc&&!sfxUdc.paused)sfxUdc.pause();if(udc){if(udc.input==='keyboard'){const pan=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);udc.f=Math.max(udc.base-.6,Math.min(udc.base+.6,udc.f+pan*1.2*dt))}else{const da=norm(Math.atan2(my-udc.cy,mx-udc.cx)-udc.base);udc.f=udc.base+Math.max(-.6,Math.min(.6,da))}}
 let vx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),vy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
-if((vx||vy)&&!won&&!lost&&!udc&&!pDown&&!(lvl===GAS&&G&&G.qte)){const l=Math.hypot(vx,vy);p.x+=vx/l*110*LO_SPD*dt;p.y+=vy/l*110*LO_SPD*dt;collide()}
+if((vx||vy)&&!won&&!lost&&!udc&&!pDown&&!(lvl===GAS&&G&&G.qte)&&!(lvl===GUNS&&GS&&(GS.dlg||GS.draw))){const l=Math.hypot(vx,vy);p.x+=vx/l*110*LO_SPD*dt;p.y+=vy/l*110*LO_SPD*dt;collide()}
 const moving=(vx||vy)&&!won&&!lost&&!udc&&!paused,target=keyboardAim&&!won&&!lost&&!udc&&!paused?aimAssistTarget():null;if(mouseLook&&!won&&!lost&&!udc&&!paused)ang=Math.atan2(my-p.y,mx-p.x);else if(target)ang=Math.atan2(target.y-p.y,target.x-p.x);else if(moving)ang=Math.atan2(vy,vx);else if(!keyboardAim||won||lost||udc||paused)ang=Math.atan2(my-p.y,mx-p.x);{const aimed=(mouseLook&&!won&&!lost&&!udc&&!paused)||!!target||moving||!keyboardAim||won||lost||udc||paused;if(aimed)recoilIn=0;if(recoilOff||recoilIn){if(!paused)recoilOff*=Math.exp(-dt*7);if(Math.abs(recoilOff)<.002)recoilOff=0;ang+=recoilOff-recoilIn;recoilIn=recoilOff}}nowS=gt;if(reloadEnd&&nowS>=reloadEnd){if(reloadWep===2){if(mags>0){mags--;pAmmo=PCAP}}else{const t=Math.min(SG_CAP-ammo,sRes);ammo+=t;sRes-=t}reloadEnd=0}if(NET.mode==='client'&&NET.inMission){coopClientTick(dt)}else if(!won&&!lost&&!paused){tickTimer(dt);if(!lost)npcs(nowS,dt);updFb(dt,nowS);if(isHub()){hubPeopleTick(dt);inmateTick(dt);shTick()}updJobs(dt);updBreach();updMates(dt);updEsc(dt);lifeTick(dt);if(kick)updKick(dt);if(op)updOp(dt,nowS);if(stk)updStk(dt,nowS);if(heal)updHeal(dt,nowS)}if(trigM||keys[' ']||keys.f){if(wep===1&&LO.prim==='m4'&&!paused&&!menu&&!stk&&!udc&&nowS>=shotAt)coopFire()}else trigM=false;if(NET.mode==='host')coopHostTick(dt);if(NET.inStation)coopStationTick();
 scene();drawFb();drawDebris();
 o.globalCompositeOperation='source-over';o.fillStyle=udc?'rgba(0,0,0,1)':assist?'rgba(5,9,11,.82)':'rgba(5,9,11,.97)';o.fillRect(-4000,-4000,8000,8000);
@@ -906,7 +906,7 @@ if(!udc){o.save();o.beginPath();o.rect(SX0-60,-OY,-OX-SX0+60,H);o.clip();o.fillS
 o.globalCompositeOperation='source-over';o.fillStyle=assist?'rgba(5,9,11,.82)':'rgba(5,9,11,.97)';
 for(const r of udc?[]:rooms)if(!r.on){o.save();o.beginPath();o.rect(r.x,r.y,r.w,r.h);o.moveTo(p.x+100,p.y);o.arc(p.x,p.y,100,0,7);o.clip('evenodd');o.fillRect(r.x,r.y,r.w,r.h);o.restore()}
 if(!boomT){x.save();x.setTransform(1,0,0,1,0,0);x.drawImage(off,0,0);x.restore()}
-if(!udc)drawSticks();for(const s of sus)if(!s.loaded&&(udc?udcSees(s):(s.cuffed||canSee(s))))person(s);if(isHub())hubPeopleDraw();if(lvl===GAS)gasWorld();drawCustody();
+if(!udc)drawSticks();for(const s of sus)if(!s.loaded&&(udc?udcSees(s):(s.cuffed||canSee(s))))person(s);if(isHub())hubPeopleDraw();if(lvl===GAS)gasWorld();if(lvl===GUNS)gunsWorld();drawCustody();
 if(!udc){for(let i=0;i<mates.length;i++)if(lvl!==HUB_B&&lvl!==HUB_U)mate(mates[i],i);drawMateHp();(lost&&!boomOut)||pDown?deadPlayer():((lvl===GAS||lvl===GUNS)&&won?0:swat());coopDraw()}tr=tr.filter(q=>nowS<q.u);drawClouds();drawLaser();for(const q of tr){if(q.g){x.strokeStyle='rgba(255,140,40,.25)';x.lineWidth=7;x.beginPath();x.moveTo(q.x1,q.y1);x.lineTo(q.x2,q.y2);x.stroke()}x.strokeStyle=q.c;x.lineWidth=q.w||1.5;x.beginPath();x.moveTo(q.x1,q.y1);x.lineTo(q.x2,q.y2);x.stroke();circ(q.c,q.x1,q.y1,q.w===1?1.8:2.5)}
 if(heal&&heal.st===1&&!udc){x.fillStyle='#4fd36e';x.fillRect(p.x-1.5,p.y-19,3,9);x.fillRect(p.x-4.5,p.y-16,9,3)}
 
@@ -943,7 +943,7 @@ if(wep===4){x.font='600 11px sans-serif';x.textAlign='right';x.textBaseline='mid
 const wr=wep===2;x.fillStyle='rgba(10,10,14,.72)';x.fillRect(W-92,H-58,84,20);if(wep===4){}else if(wr){rr('#4a4d54',W-86,H-54,8,14,1);rr('#d9b34a',W-85,H-56,6,3,0);rr('#2a2d31',W-86,H-44,8,3,1)}else if(isRif(LO.prim)){rr('#2a2c30',W-86,H-55,7,13,1.5);rr('#d9b34a',W-85,H-56,5,2.5,0)}else{rr('#c8452e',W-85,H-55,6,10,1);rr('#d9b34a',W-85,H-47,6,4,0)}x.font='600 14px sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillStyle='#eee';x.fillText(wep===4?'slot 4':wep===3?'slot 3':'x '+(wr?mags+(LO.side==='magnum'?(mags===1?' loader':' loaders'):(mags===1?' mag':' mags')):sRes+(isRif(LO.prim)?' rds':' shells')),W-72,H-48);
 x.font='600 15px sans-serif';x.textAlign='right';x.textBaseline='bottom';x.fillStyle='#eee';const lab=wep===4?'Empty hands':wep===3?({ram:'Battering ram',breach:'Breach shotgun',mirror:'Mirrorgun'}[LO.tool]):reloadEnd?'Reloading':(wep===2?pAmmo:ammo)<=0?((wep===2?mags:sRes)<=0?'Out of ammo':'Press R'):(wep===2?(LO.side==='pepper'?'PB-50 Pepper (less-lethal)':LO.side==='magnum'?'.44 Magnum (lethal)':'Glock-19 (lethal)'):primLabel());if(lab)x.fillText(lab,W-8,H-62);
 x.fillStyle='rgba(10,10,14,.72)';x.fillRect(W-138,H-32,40,24);for(let i=0;i<2;i++){x.fillStyle=i<fbs?'#c9d0d4':'#4a4a50';x.fillRect(W-132+i*16,H-28,8,16);x.fillStyle=i<fbs?'#e8c24a':'#4a4a50';x.fillRect(W-132+i*16,H-28,8,4)}
-coopHud();trainHud();const e1=won?'w':(lost&&nowS-lostAt>(boomT?3:1.1))?'l':'';if(e1!==endState){endState=e1;eEl.hidden=!e1;endNextUi(e1);if(e1==='w'&&lvl===GUNS)gunsEndWin();else if(e1==='w'&&lvl===GAS)gasEndWin();else if(e1==='l'&&lvl===GAS)gasEndLoss();else if(e1==='w'){const fin=score+hp+(kills+hk?0:200),rk=fin>=1000?'S':fin>=800?'A':fin>=600?'B':fin>=300?'C':'D',nb=isHub()?false:recordWin(lvl,fin,rk,!(kills+hk));if(lvl===0)done=true;eT.textContent=lvl===0?'Tutorial complete':'Mission complete';eT.style.color='#5fc77a';eS.textContent=(()=>{return 'Score '+fin+(nb?' (new best!)':'')+', rank '+rk+'. '+(unsavedN?unsavedN+' not saved (-'+unsavedN*UNSAVED+'). ':'')+(kills+hk?'Lethal force used ('+(kills+hk)+').':'Clean arrest bonus +200.')})()}else if(e1==='l'){if(!isHub())recordLoss(lvl);const h=lost.includes('hostage');const kn=lost.includes('stabbed'),bm=lost.includes('exploded');const td=lost.includes('whole team');eT.textContent=bm?(boomOut?'Building lost':'Time\'s up'):td?'Team down':h?'Hostage hit':lost.includes('lethal')?'Unjustified force':kn?'You were stabbed':'You were shot';eT.style.color=bm&&boomOut?'#e8a23a':'#d94a3a';eS.textContent=td?'Every officer on the team was taken down. Regroup and try again.':bm?(boomOut?'You got out alive, but '+unsavedN+(unsavedN===1?' person':' people')+' never made it to a police car (-'+unsavedN*UNSAVED+'). Final score '+score+'.':'You were still inside when the bomb went off. '+unsavedN+' not saved (-'+unsavedN*UNSAVED+').'):h?'Never fire on a hostage. Aim carefully.':lost.includes('lethal')?'Lethal force is a last resort, only against an armed criminal who is shooting at you.':(kn?'The knife attacker charges on sight. Stun him with the beanbag before he reaches you.':'Stay out of their line of sight and cuff them fast.')}}
+coopHud();trainHud();const e1=won?'w':(lost&&nowS-lostAt>(boomT?3:1.1))?'l':'';if(e1!==endState){endState=e1;eEl.hidden=!e1;endNextUi(e1);if(e1==='w'&&lvl===GUNS)gunsEndWin();else if(e1==='w'&&lvl===GAS)gasEndWin();else if(e1==='l'&&lvl===GUNS)gunsEndLoss();else if(e1==='l'&&lvl===GAS)gasEndLoss();else if(e1==='w'){const fin=score+hp+(kills+hk?0:200),rk=fin>=1000?'S':fin>=800?'A':fin>=600?'B':fin>=300?'C':'D',nb=isHub()?false:recordWin(lvl,fin,rk,!(kills+hk));if(lvl===0)done=true;eT.textContent=lvl===0?'Tutorial complete':'Mission complete';eT.style.color='#5fc77a';eS.textContent=(()=>{return 'Score '+fin+(nb?' (new best!)':'')+', rank '+rk+'. '+(unsavedN?unsavedN+' not saved (-'+unsavedN*UNSAVED+'). ':'')+(kills+hk?'Lethal force used ('+(kills+hk)+').':'Clean arrest bonus +200.')})()}else if(e1==='l'){if(!isHub())recordLoss(lvl);const h=lost.includes('hostage');const kn=lost.includes('stabbed'),bm=lost.includes('exploded');const td=lost.includes('whole team');eT.textContent=bm?(boomOut?'Building lost':'Time\'s up'):td?'Team down':h?'Hostage hit':lost.includes('lethal')?'Unjustified force':kn?'You were stabbed':'You were shot';eT.style.color=bm&&boomOut?'#e8a23a':'#d94a3a';eS.textContent=td?'Every officer on the team was taken down. Regroup and try again.':bm?(boomOut?'You got out alive, but '+unsavedN+(unsavedN===1?' person':' people')+' never made it to a police car (-'+unsavedN*UNSAVED+'). Final score '+score+'.':'You were still inside when the bomb went off. '+unsavedN+' not saved (-'+unsavedN*UNSAVED+').'):h?'Never fire on a hostage. Aim carefully.':lost.includes('lethal')?'Lethal force is a last resort, only against an armed criminal who is shooting at you.':(kn?'The knife attacker charges on sight. Stun him with the beanbag before he reaches you.':'Stay out of their line of sight and cuff them fast.')}}
 requestAnimationFrame(frame)}
 const mn=document.getElementById('mn'),secs=['main','levels','how','pause','loadout','gunsmith','brief','save','coop','play','crimlo'].map(n=>document.getElementById('s-'+n));
 let paused=true,ui='main',gt=0,lvl=0,tutBase=0,tutF={},done=false;
@@ -986,7 +986,7 @@ function tutStep(){for(let i=tutBase;i<9;i++)if(!tutDone(i))return i;return 9}
 const lv=[{n:'Tutorial',d:'A quiet suburban house. Learn every tool, guided step by step.',r:1},{n:'Library',d:'Long sight lines down the stacks. Eight rooms, seven people.',r:1},{n:'Motel',d:'Seven cabins and an office around a parking lot. Clear every unit.',r:1},{n:'Compound',d:'The final assault.',r:0}];
 /* mission select tabs: SWAT (the police missions) and CRIMINAL (the other side; missions coming later) */
 let lvTab='swat';
-const CRIM_LV=[{n:'Gas Station',d:'Rob the register, crack the safe, and get back to the car before the cops show up.',r:1,lvl:12,st:'1 clerk  \u00b7  2-4 customers  \u00b7  register + manager\'s safe (key on the clerk)  \u00b7  police 45s after the alarm'},{n:'Gun Store',d:'Spend the stolen money on a pump shotgun. No crime, no kills: just buy it and get out.',r:1,lvl:14,st:'1 clerk  \u00b7  1-2 customers  \u00b7  gun stays holstered  \u00b7  shotgun costs $250 from your stash'},{n:'Bank Job',d:'Crack the vault before the response team arrives.'},{n:'Getaway',d:'Get the crew and the cash out through a city on lockdown.'},{n:'Safehouse',d:'Hold the house when SWAT comes knocking.'}];
+const CRIM_LV=[{n:'Gas Station',d:'Rob the register, crack the safe, and get back to the car before the cops show up.',r:1,lvl:12,st:'1 clerk  \u00b7  2-4 customers  \u00b7  register + manager\'s safe (key on the clerk)  \u00b7  police 45s after the alarm'},{n:'Gun Store',d:'Spend the stolen money on a shotgun. No crime, no kills: talk the owner into selling, buy it and get out.',r:1,lvl:14,st:'1 clerk  \u00b7  1-2 customers  \u00b7  gun stays holstered  \u00b7  talk your way into a $2000 shotgun'},{n:'Bank Job',d:'Crack the vault before the response team arrives.'},{n:'Getaway',d:'Get the crew and the cash out through a city on lockdown.'},{n:'Safehouse',d:'Hold the house when SWAT comes knocking.'}];
 function lvSetTab(t){if(t===lvTab)return;lvTab=t;try{uiSnd('click')}catch(e){}buildLevels();$('lt-'+t).focus()}
 document.querySelectorAll('#lv-tabs button').forEach(b=>{b.onclick=()=>lvSetTab(b.dataset.t);b.onkeydown=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();lvSetTab(lvTab==='swat'?'crim':'swat')}}});
 function buildLevels(){const only=fromHub&&lvl===HOME?'crim':fromHub&&isHub()?'swat':null;if(only)lvTab=only;document.querySelectorAll('#lv-tabs button').forEach(b=>{b.hidden=!!only&&b.dataset.t!==only;const on=b.dataset.t===lvTab;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1});
@@ -1507,7 +1507,7 @@ function isCrimLvl(i){return CRIM_LVLS.includes(i)}
 var LOC={side:'magnum',long:'none',armor:'light',mask:'black'};
 try{const v=JSON.parse(localStorage.getItem('de_crim_lo')||'null');if(v&&typeof v==='object'){for(const k in LOC)if(typeof v[k]==='string')LOC[k]=v[k]}}catch(e){}
 var CL_OPTS={side:[{id:'magnum',n:'.44 Magnum',d:'6 rounds, hits like a truck, slow to reload.'}],
-long:[{id:'none',n:'No long gun',d:'Travel light. Nothing bulky to explain.'},{id:'m37',n:'Pump shotgun',d:'Bought at the gun store. 5 shells of buckshot.'}],
+long:[{id:'none',n:'No long gun',d:'Travel light. Nothing bulky to explain.'},{id:'m37',n:'M37 Featherweight',d:'Pump shotgun from the gun store. 5 shells of buckshot.'}],
 armor:[{id:'light',n:'Hoodie',d:'Move 12% faster. Take 15% more damage.'},{id:'std',n:'Leather jacket',d:'Normal speed and normal damage.'},{id:'heavy',n:'Stolen vest',d:'Take 35% less damage. Move 15% slower.'}],
 mask:[{id:'black',n:'Black ski mask',d:'Classic.'},{id:'red',n:'Red ski mask',d:'Hard to miss.'},{id:'olive',n:'Olive ski mask',d:'Army surplus.'},{id:'white',n:'White ski mask',d:'Creepy.'}]};
 var MASK_COL={black:'#141316',red:'#8a1f24',olive:'#4a5a2a',white:'#d9d5c9'};
@@ -1572,7 +1572,7 @@ for(const r of rooms)if(!r.on){x.fillStyle='rgba(10,10,14,.55)';x.fillRect(r.x,r
 /* ======== CRIMINAL MISSION 2: GUN STORE ========
    Spend the gas station money on a pump shotgun. No crime: your gun stays holstered the whole time.
    Walk in, buy it at the counter, walk back out to the car. */
-var GUNS=14,GS=null,GUN_PRICE=250,GUN_BUY={x:470,y:210};
+var GUNS=14,GS=null,GUN_PRICE=2000,GUN_BUY={x:470,y:210};
 /* the stash: cash carried between criminal missions */
 function stash(){return SAVE.cash||0}
 function stashAdd(v){SAVE.cash=Math.max(0,stash()+v);saveWrite()}
@@ -1599,38 +1599,67 @@ const civ=(cx,cy,a,o)=>Object.assign({x:cx,y:cy,a,t:0,freed:true,cuffed:false,ci
 const clerk=civ(480,160,Math.PI/2,{clerk:1,col:'#5a6a3a',st:'clerk'});sus=[clerk];
 const pts=GUNS_BROWSE.slice().sort(()=>Math.random()-.5),n=1+(Math.random()<.5?1:0);
 for(let i=0;i<n;i++)sus.push(civ(pts[i][0],pts[i][1],Math.random()*6.28,{wait:nowS+1+Math.random()*4,col:['#4a5a7a','#7a4a3a','#3a3a40'][i%3]}));
-GS={t0:nowS,bought:0,act:null,clerk,won:0,eTip:false,broke:stash()<GUN_PRICE,greeted:0};
-pSay=GS.broke?'Only $'+stash()+' in the stash. Not enough for the shotgun.':'Keep the Magnum holstered. Just buying, nothing else.';pSayU=nowS+4}
+GS={t0:nowS,bought:0,act:null,clerk,won:0,eTip:false,broke:stash()<GUN_PRICE,greeted:0,dlg:null,sus:0,draw:0};
+pSay=GS.broke?'Only $'+stash()+' in the stash. Probably not enough.':'Keep the Magnum holstered. Talk to the owner at the counter.';pSayU=nowS+4}
 function gunsSay(s,arr,dur){s.say=arr[Math.floor(Math.random()*arr.length)];s.sayU=nowS+(dur||1.6)}
-function gunsTick(dt){if(!GS)return;const c=GS.clerk;
+function gunsTick(dt){if(!GS)return;const c=GS.clerk;if(GS.draw){c.a=Math.atan2(p.y-c.y,p.x-c.x);if(!lost&&nowS>GS.draw+1.6){try{playShot()}catch(e){}shotT=nowS;hp=0;lost='The gun store owner shot you.';lostAt=nowS;shake=Math.max(shake,.6);try{bleed(p,nowS)}catch(e){}}return}
 if(!GS.greeted&&roomAt(p.x,p.y)){GS.greeted=1;gunsSay(c,['Welcome in.','Evening. Holler if you need anything.','Help you find something?'],2)}
-if(roomAt(p.x,p.y))c.a=Math.atan2(p.y-c.y,p.x-c.x);
+if(roomAt(p.x,p.y))c.a=Math.atan2(p.y-c.y,p.x-c.x);if(GS.dlg&&Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)>90)gdlgClose();
 for(const s of sus){if(!s.civ||s.clerk)continue;if(s.path&&s.path.length){jobDoors(s);followPath(s,s,dt,30)}else if(nowS>(s.wait||0)){const q=GUNS_BROWSE[Math.floor(Math.random()*GUNS_BROWSE.length)];s.path=navPath(s.x,s.y,q[0],q[1]);s.wait=nowS+3+Math.random()*5}}
 const a=GS.act;if(a){if(Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)>80){GS.act=null;pSay='Hang on, I\'ll be right back.';pSayU=nowS+1.4;gunsSay(c,['Uh, okay.','I\'ll hold it for you.']);return}
  const prev=a.p;a.p+=dt/a.dur;
- if(prev<.35&&a.p>=.35)gunsSay(c,['Cash? Works for me.','Used Remington. Cleaned it myself.'],1.6);
+ if(prev<.35&&a.p>=.35)gunsSay(c,['Twenty hundreds. Let me count.','Cleaned the Featherweight myself.'],1.6);
  if(prev<.7&&a.p>=.7)gunsSay(c,['Box of buckshot, on the house.','Nice doing business.'],1.6);
  if(a.p>=1){GS.act=null;GS.bought=1;pops.push({x:GUN_BUY.x,y:GUN_BUY.y-14,t:'-$'+GUN_PRICE,c:'#e8c24a',u:nowS+1.6});try{playReload()}catch(e){}pSay='Got it. Now back to the car.';pSayU=nowS+2;gunsSay(c,['Stay safe out there.','Come back anytime.'],2)}}}
 function gunsCarObj(){return yard.find(o=>o.k==='gcar')}
 function gunsCarNear(){const o=gunsCarObj();if(!o)return null;const r=o.r,dx=Math.max(r[0]-p.x,0,p.x-r[0]-r[2]),dy=Math.max(r[1]-p.y,0,p.y-r[1]-r[3]);return Math.hypot(dx,dy)<26?o:null}
+/* gun store: talking to the owner. Pick answers with 1/2/3. Three suspicious answers and he pulls a gun. */
+var GUN_STRIKES=3;
+var GDLG={
+start:{c:'What can I do you for?',o:[{t:"I'm here to buy a weapon.",r:'Alright. Well, what are you planning to use it for?',go:'purpose'},{t:"I'm looking for something powerful.",bad:1,r:'Powerful, huh? Well... what are you planning to use it for?',go:'purpose'}]},
+purpose:{c:'What are you planning to use it for?',o:[{t:"I'd rather not say.",bad:1,r:"I don't feel safe selling you this weapon, sir. Not unless you tell me what it's for.",go:'purpose2'},{t:'Just for home defense.',r:"Well, I have this nice M37 Featherweight. Maybe that'll do you good.",go:'offer'}]},
+purpose2:{c:'So what is it for?',o:[{t:'Fine. Just for home defense.',r:"Okay. Well, I have this nice M37 Featherweight. Maybe that'll do you good.",go:'offer'},{t:'None of your business.',bad:1,r:"Last chance, friend. What's it for?",go:'purpose2'}]},
+offer:{c:"I have this nice M37 Featherweight. Maybe that'll do you good.",o:[{t:"What's the price tag on that rig there?",r:"It'll set you back about 2000 dollars.",go:'price'},{t:'Easy to saw the barrel down on that?',bad:1,r:"...Why would you need to do that? It's 2000 dollars, if you're still buying.",go:'price'}]},
+price:{c:"It'll set you back about 2000 dollars.",o:[{t:"I'll take it.",buy:1},{t:'Got anything cheaper?',r:"Not that'll do the job. 2000, take it or leave it.",go:'price'}]}};
+function gdlgOpen(){GS.dlg={n:'start',c:GDLG.start.c,t0:nowS};GS.dlgUsed=1;try{uiSnd('click')}catch(e){}}
+function gdlgClose(){GS.dlg=null}
+function gdlgShown(d){return Math.min(d.c.length,Math.floor((nowS-d.t0)*48))}
+function gdlgPick(k){const d=GS.dlg;if(!d||GS.draw)return;if(gdlgShown(d)<d.c.length){d.t0=-99;return}const N=GDLG[d.n];
+if(k===3){gdlgClose();pSay='Never mind. Just looking.';pSayU=nowS+1.4;gunsSay(GS.clerk,['Take your time.','Sure.'],1.4);return}
+const o=N.o[k-1];if(!o)return;pSay=o.t;pSayU=nowS+2;try{uiSnd('click')}catch(e){}
+if(o.bad){GS.sus++;if(GS.sus>=GUN_STRIKES){d.n='fail';d.c="That's it. I don't like where this is going. Hands where I can see 'em!";d.t0=nowS;GS.draw=nowS;GS.clerk.a=Math.atan2(p.y-GS.clerk.y,p.x-GS.clerk.x);try{playReload()}catch(e){}shake=Math.max(shake,.25);return}}
+if(o.buy){if(stash()<GUN_PRICE){d.n='price';d.c="You're short, friend. Come back when you've got the money.";d.t0=nowS;GS.broke=true;return}
+ gdlgClose();GS.act={p:0,dur:3.5};gunsSay(GS.clerk,['Cash? Works for me.','Good choice.'],1.4);return}
+d.n=o.go;d.c=o.r||GDLG[o.go].c;d.t0=nowS}
+addEventListener('keydown',e=>{if(!(lvl===GUNS&&GS&&GS.dlg)||paused)return;const k={'1':1,'2':2,'3':3}[e.key];if(!k&&e.key!=='e'&&e.key!=='E')return;e.preventDefault();e.stopImmediatePropagation();if(e.repeat||!k)return;gdlgPick(k)},true);
+function gdlgWrap(t,w){const out=[];let line='';for(const wd of t.split(' ')){const tr=line?line+' '+wd:wd;if(x.measureText(tr).width>w&&line){out.push(line);line=wd}else line=tr}if(line)out.push(line);return out}
+function gdlgHud(){const d=GS.dlg;if(!d)return;const bw=Math.min(W-40,560),bx=(W-bw)/2;x.font='600 15px sans-serif';const cl=gdlgWrap(d.c.slice(0,gdlgShown(d)),bw-24),done=gdlgShown(d)>=d.c.length&&!GS.draw,N=GDLG[d.n];
+const opts=done&&N?N.o.map((o,i)=>(i+1)+'.  '+o.t).concat(['3.  Never mind.']):[],bh=44+Math.max(1,cl.length)*20+(opts.length?12+opts.length*22:0)+22,by=H-bh-70;
+x.fillStyle='rgba(10,10,14,.9)';x.fillRect(bx,by,bw,bh);x.strokeStyle=GS.draw?'#d94a3a':'#5a5a62';x.lineWidth=2;x.strokeRect(bx,by,bw,bh);
+x.textAlign='left';x.textBaseline='middle';x.font='700 12px sans-serif';x.fillStyle='#e8c24a';x.fillText('OWNER',bx+12,by+16);
+x.fillStyle='#8a8a90';x.textAlign='right';x.fillText('SUSPICION',bx+bw-12-GUN_STRIKES*16-6,by+16);for(let i=0;i<GUN_STRIKES;i++){x.fillStyle=i<GS.sus?'#d94a3a':'#3a3a40';x.beginPath();x.arc(bx+bw-12-(GUN_STRIKES-1-i)*16-5,by+16,5,0,7);x.fill()}
+x.textAlign='left';x.font='600 15px sans-serif';x.fillStyle='#e8e2d0';cl.forEach((l,i)=>x.fillText(l,bx+12,by+40+i*20));
+let y=by+40+Math.max(1,cl.length)*20+10;x.font='600 14px sans-serif';opts.forEach((t,i)=>{x.fillStyle=i===opts.length-1?'#8a8a90':'#9fd3ff';x.fillText(t,bx+20,y+i*22)});
+x.font='500 11px sans-serif';x.fillStyle='#6a6a70';x.fillText(done?'Press 1, 2 or 3 to answer':GS.draw?'':'Press a number to skip',bx+12,by+bh-11)}
+function gunsWorld(){if(!GS||!GS.draw)return;const c=GS.clerk,a=Math.atan2(p.y-c.y,p.x-c.x);x.save();x.translate(c.x,c.y);x.rotate(a);rr('#1a1b1e',6,-1.5,10,3,1);rr('#1a1b1e',6,0,3,4,1);x.restore()}
+function gunsEndLoss(){recordLoss(GUNS);eT.textContent='Shot by the owner';eT.style.color='#d94a3a';eS.textContent='Too many wrong answers. The owner got suspicious and pulled a gun from under the counter. Keep your story straight and don\'t give him a reason to worry.'}
 function gunsUseE(){if(!GS)return false;const c=GS.clerk;
 const car=gunsCarNear();if(car){if(!GS.bought){if(GS.broke){pSay='Not enough cash. Heading home.';pSayU=nowS+1.4;setTimeout(()=>{if(lvl===GUNS&&!won)startLevel(HOME)},900);return true}pSay='Not leaving without the shotgun.';pSayU=nowS+1.4;return true}
  won=true;GS.won=nowS;p.x=car.r[0]+car.r[2]/2;p.y=car.r[1]+car.r[3]/2;try{playDoorMove(false)}catch(e){}return true}
 if(!GS.bought&&!GS.act&&Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)<62){
- if(GS.broke){pSay='The pump shotgun. How much?';pSayU=nowS+1.4;gunsSay(c,['Two fifty. Come back when you have it.','$250, cash. No credit.'],2);return true}
- GS.act={p:0,dur:3.5};pSay=['The pump shotgun on the wall. Cash.','That Remington. I\'ll take it.'][Math.floor(Math.random()*2)];pSayU=nowS+1.6;gunsSay(c,['Good choice.','This one? Sure thing.'],1.4);return true}
+ if(GS.draw)return true;gdlgOpen();return true}
 if(Math.hypot(p.x-c.x,p.y-c.y)<70&&GS.bought){gunsSay(c,['Anything else?','Enjoy it.','Keep it legal, huh?']);return true}
 const q=nearSus();if(q&&q.civ&&!q.clerk){gunsSay(q,['Evening.','Just browsing.','Nice place, huh?','Prices went up again.']);return true}
 return false}
-function gunsTips(ti){GS.eTip=false;if(!GS)return ti;const e=(tx,ty,t)=>{tip(tx,ty-ti++*26,'E',t);GS.eTip=true};
+function gunsTips(ti){if(!GS)return ti;GS.eTip=false;if(GS.dlg)return ti;const e=(tx,ty,t)=>{tip(tx,ty-ti++*26,'E',t);GS.eTip=true};
 if(gunsCarNear())e(p.x,p.y-14,GS.bought?'Drive home':GS.broke?'Go home':'Get in the car');
-if(!GS.bought&&!GS.act&&Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)<62)e(GUN_BUY.x,GUN_BUY.y-14,GS.broke?'Ask the price':'Buy the pump shotgun ($'+GUN_PRICE+')');
+if(!GS.bought&&!GS.act&&!GS.dlg&&!GS.draw&&Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)<62)e(GUN_BUY.x,GUN_BUY.y-14,'Talk to the owner');
 return ti}
-function gunsStatus(){return 'Gun store · stash $'+gunsLeft()+' · '+(GS.bought?'got the shotgun, back to the car':GS.broke?'not enough cash':'buy the pump shotgun at the counter')+' · no crime, keep it holstered'}
+function gunsStatus(){return 'Gun store · stash $'+gunsLeft()+' · '+(GS.draw?'HE PULLED A GUN':GS.bought?'got the shotgun, back to the car':GS.dlg?'1 / 2 / 3: answer the owner':'talk to the owner at the counter')+' · no crime, keep it holstered'}
 function gunsTimer(){x.fillStyle='rgba(10,10,14,.75)';x.fillRect(8,34,132,22);x.font='600 14px sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillStyle='#4fd36e';x.fillText('JUST SHOPPING',14,45)}
-function gunsHud(){if(!GS)return;x.font='600 12px sans-serif';x.textAlign='left';x.textBaseline='middle';
+function gunsHud(){if(!GS)return;gdlgHud();x.font='600 12px sans-serif';x.textAlign='left';x.textBaseline='middle';
 x.fillStyle='rgba(10,10,14,.75)';x.fillRect(124,8,120,22);x.fillStyle='#8a8a90';x.fillText('STASH',130,19);x.fillStyle='#4fd36e';x.fillText('$'+gunsLeft(),176,19);
-const L=[[GS.bought,'Buy the pump shotgun ($'+GUN_PRICE+')'],[won,'Back to the car']];L.forEach((q,k)=>{const y=70+k*17;x.fillStyle='rgba(10,10,14,.7)';x.fillRect(8,y-7,200,15);x.fillStyle=q[0]?'#4fd36e':'#9a9aa0';x.fillText((q[0]?'✓ ':'□ ')+q[1],14,y+.5)});
+const L=[[GS.bought,'Buy the M37 Featherweight ($'+GUN_PRICE+')'],[won,'Back to the car']];L.forEach((q,k)=>{const y=70+k*17;x.fillStyle='rgba(10,10,14,.7)';x.fillRect(8,y-7,200,15);x.fillStyle=q[0]?'#4fd36e':'#9a9aa0';x.fillText((q[0]?'✓ ':'□ ')+q[1],14,y+.5)});
 if(GS.act){const bw=220,bx=(W-bw)/2,by=H-92;x.fillStyle='rgba(10,10,14,.82)';x.fillRect(bx-8,by-22,bw+16,44);x.fillStyle='#d9d5c9';x.font='600 13px sans-serif';x.fillText('COUNTING OUT THE CASH',bx,by-10);x.fillStyle='#2a2a30';x.fillRect(bx,by,bw,12);x.fillStyle='#4fd36e';x.fillRect(bx,by,bw*Math.min(1,GS.act.p),12)}}
 /* drawing */
 function gunsLot(){rr('#2a2d31',-280,-90,1020,600,0);x.fillStyle='rgba(255,255,255,.03)';for(let i=0;i<600;i++)x.fillRect(-280+(i*73)%1020,-90+(i*53)%600,2,2);
@@ -1642,7 +1671,7 @@ function gunsLong(a,b,col,len){rr(col||'#2a2a2e',a,b,len||26,2.2,.8);rr('#6a4a2a
 function gunsItem(t,f){const[a,b,w,h]=f;
 if(t==='counter'){rr('#3a3d42',a,b,w,h,1.5);rr('rgba(150,190,210,.35)',a+1.5,b+1.5,w-3,h-3,1);if(w>h){for(let k=0;k<6;k++)rr('#1c1e22',a+10+k*40,b+5,14,3,1);rr('#2a2c30',GUN_BUY.x-12,b-1,22,9,1.5);rr('#5fc77a',GUN_BUY.x-10,b+.5,8,3,.5)}}
 else if(t==='rack'){rr('#5e4330',a,b,w,h,1);for(let k=0;k<9;k++){const gx=a+6+k*26;if(k===4&&GS&&GS.bought){rr('rgba(0,0,0,.25)',gx,b+2,22,3,1);continue}gunsLong(gx,b+3,k===4?'#3a3a3e':'#24262a',22)}
- if(!(GS&&GS.bought)){const gx=a+6+4*26;rr('#e8e2d0',gx+6,b+9,12,7,1);x.fillStyle='#c8372d';x.font='700 5px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('$'+GUN_PRICE,gx+12,b+12.6);if(Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)<140){x.strokeStyle='rgba(232,194,74,'+(.35+.35*Math.sin(nowS*5))+')';x.lineWidth=1.2;x.strokeRect(gx-2,b,26,18)}}}
+ if(!(GS&&GS.bought)){const gx=a+6+4*26;rr('#e8e2d0',gx+3,b+9,18,7,1);x.fillStyle='#c8372d';x.font='700 5px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('$'+GUN_PRICE,gx+12,b+12.6);if(Math.hypot(p.x-GUN_BUY.x,p.y-GUN_BUY.y)<140){x.strokeStyle='rgba(232,194,74,'+(.35+.35*Math.sin(nowS*5))+')';x.lineWidth=1.2;x.strokeRect(gx-2,b,26,18)}}}
 else if(t==='gcase'){rr('#2a2c30',a,b,w,h,1.5);rr('rgba(160,200,220,.42)',a+2,b+2,w-4,h-4,1);for(let k=0;k<4;k++){const gx=a+6+k*16,gy=b+6+(k%2)*5;rr('#1a1b1e',gx,gy,9,3,.6);rr('#1a1b1e',gx+1,gy+2,3,4,.6)}}
 else if(t==='ammo'){rr('#5a5e66',a,b,w,h,1);for(let k=0;k*10<h-4;k++)rr(['#2a5a3a','#8a2a2a','#c89a3a','#3a3a40'][k%4],a+2,b+2+k*10,w-4,8,1)}
 else if(t==='bench'){rr('#5e4330',a,b,w,h,2);rr('#7c5a40',a+1,b+1,w-2,h-2,1)}
@@ -1657,16 +1686,16 @@ for(const r of rooms)if(!r.on){x.fillStyle='rgba(10,10,14,.55)';x.fillRect(r.x,r
 function gunsEndWin(){const t=Math.max(0,nowS-GS.t0),fin=Math.max(400,1500-Math.round(t)*10),rk=fin>=1300?'S':fin>=1100?'A':fin>=900?'B':fin>=600?'C':'D';
 GS.paid=1;stashAdd(-GUN_PRICE);SAVE.shotgun=true;LOC.long='m37';locSave();const nb=recordWin(GUNS,fin,rk,true);
 eT.textContent='Bought and gone';eT.style.color='#5fc77a';
-eS.textContent='You paid $'+GUN_PRICE+' cash for a pump shotgun. $'+stash()+' left in the stash. The shotgun is in your bedroom closet now. In and out in '+Math.round(t)+'s. Score '+fin+(nb?' (new best!)':'')+', rank '+rk+'.'}
+eS.textContent='You paid $'+GUN_PRICE+' cash for an M37 Featherweight. $'+stash()+' left in the stash. The shotgun is in your bedroom closet now. In and out in '+Math.round(t)+'s. Score '+fin+(nb?' (new best!)':'')+', rank '+rk+'.'}
 /* briefing */
 function gunsBrief(){if(NET.mode){$('lv-stats').textContent='Criminal missions are single-player for now.';return}brSel=GUNS;const pick=a=>a[Math.floor(Math.random()*a.length)],hh=6+Math.floor(Math.random()*3),mm=Math.floor(Math.random()*60),nm=pick(['Hank\'s Guns & Ammo','Frontier Firearms','Ridgeline Arms','Big Iron Gun Shop','Liberty Sporting Goods']),area=pick(PL.areas);
 const P=brPlace={time:String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+' PM',day:pick(PL.days),line1:nm,line2:area,short:nm};
 $('br-name').textContent='The Errand: '+nm;$('br-loc').textContent=P.line1+' · '+P.line2+' · '+P.day+' '+P.time;
-$('br-sit').textContent='The gas station job paid off, but a Magnum won\'t cut it for what\'s next. '+nm+' has a used pump shotgun on the wall for $'+GUN_PRICE+', cash, no questions. You have $'+stash()+' in the stash.';
+$('br-sit').textContent='The gas station job paid off, but a Magnum won\'t cut it for what\'s next. '+nm+' has a shotgun on the wall for about $'+GUN_PRICE+'. The owner is careful about who he sells to. You have $'+stash()+' in the stash.';
 const li=(el,items)=>{el.innerHTML='';for(const t of items){const n=document.createElement('li');n.textContent=t;el.appendChild(n)}};
-li($('br-intel'),['One clerk behind the counter. A customer or two browsing.','The shotgun is on the wall behind the counter, price tag on it.','Everyone in there is armed. Don\'t even think about it.']);
-li($('br-obj'),['Walk in and go to the counter.','Buy the pump shotgun (E at the counter).','Walk back out to your car (E) and drive home.']);
-$('br-roe').textContent='No crime. Your gun stays holstered the whole time. Just buy it and get out.';
+li($('br-intel'),['One clerk behind the counter. A customer or two browsing.','The shotgun is on the wall behind the counter, price tag on it.','The owner keeps a pistol under the counter. Say the wrong things and he will use it.']);
+li($('br-obj'),['Walk in and go to the counter.','Talk to the owner (E at the counter) and answer with 1, 2 or 3. Don\'t make him suspicious.','Buy the shotgun.','Walk back out to your car (E) and drive home.']);
+$('br-roe').textContent='No crime. Your gun stays holstered the whole time. Three suspicious answers and the owner pulls a gun on you.';
 $('br-kit').textContent='Your kit: '+locKitText()+', $'+stash()+' cash.'+(stash()<GUN_PRICE?' (Not enough for the shotgun. Rob the gas station again first.)':'');showUi('brief')}
 
 function applyLevel(i){const L=i===GUNS?GUNSL:i===HOME?HOMEL:i===GAS?GASL:i===1?LIB:i===2?MOTEL:i===HUB_U?TRAINING:i===HUB?STATION:i===HUB_B?BASEMENT:HOUSE;walls=L.walls;doorDefs=L.doorDefs;furn=L.furn;yard=L.yard;spots=L.spots;rooms=L.rooms;sw=L.sw;wins=L.wins;FD=L.fd;ROLES=L.roles;LOCKN=L.lockN||2;LOCKPOOL=L.lockPool||null;mkSegs()}
@@ -2533,7 +2562,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-153839';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-154801';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
