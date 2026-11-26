@@ -798,7 +798,7 @@ let recoilOff=0,recoilIn=0;
 function recoilFor(){if(wep===3)return LO.tool==='breach'?[.12,.42]:[0,0];if(wep===2)return LO.side==='magnum'?[.17,.6]:LO.side==='pepper'?[.025,.07]:[.055,.16];
 const pr=LO.prim,am=loAmmo();return pr==='m4'?[.045,.12]:pr==='ar15'?[.035,.13]:pr==='m37'?(am==='slug'?[.15,.55]:[.13,.48]):am==='sock'?[.1,.36]:[.09,.32]}
 function recoilKick(){if(NET.actor)return;let[k,sh]=recoilFor();if(!k)return;if((wep===1&&supP())||(wep===2&&supS()))k*=.85;const side=Math.random()<.5?-1:1;recoilOff+=side*k*(.75+Math.random()*.45);recoilOff=Math.max(-.45,Math.min(.45,recoilOff));shake=Math.max(shake,sh)}
-function fire(tm){if(pDown&&!NET.actor)return;if(wep===4)return;if(isHub()&&lvl!==HUB_U){hubNoFire(wep===3?'No need for that.':undefined);return}if(wep===3&&!udc){useTool(tm);return}if(won||lost||tm<shotAt||reloadEnd||stk||udc)return;if(wep===2){firePistol(tm);return}if(ammo<=0){reload();return}ammo--;
+function fire(tm){if(pDown&&!NET.actor)return;if(lvl===GAS&&G&&G.qte)return;if(wep===4)return;if(isHub()&&lvl!==HUB_U){hubNoFire(wep===3?'No need for that.':undefined);return}if(wep===3&&!udc){useTool(tm);return}if(won||lost||tm<shotAt||reloadEnd||stk||udc)return;if(wep===2){firePistol(tm);return}if(ammo<=0){reload();return}ammo--;
 const pr0=LO.prim,am=loAmmo(),LS=LO.laser==='none'?1:.55,ar=isRif(pr0),m4=pr0==='m4',m37=pr0==='m37',slug=m37&&am==='slug',buck=m37&&!slug,sock=pr0==='bean'&&am==='sock';
 shotT=tm;recoilKick();shotAt=tm+(m4?.085:ar?.13:m37?.6:sock?.95:.8);const su=supP();if(su)playSup(!ar);else if(ar)playShot();else playShotgun();lifeShot();hearShot(p.x,p.y,(pr0==='bean'?260:ar?320:340)*(su?(ar?.3:.45):1),tm);
 if(buck){const bx=p.x+Math.cos(ang)*23,by=p.y+Math.sin(ang)*23,hit=new Set();for(let k=0;k<8;k++){const pa=ang+(Math.random()-.5)*.26*LS,pw=cast(p.x,p.y,pa,270);let pb=null,pt=pw;for(const s of sus){if(s.cuffed)continue;const dx=s.x-p.x,dy=s.y-p.y,pr=dx*Math.cos(pa)+dy*Math.sin(pa),pp=Math.abs(dx*Math.sin(pa)-dy*Math.cos(pa));if(pr>0&&pr<pt&&pp<5){pb=s;pt=pr}}if(pb)hit.add(pb);tr.push({x1:bx,y1:by,x2:p.x+Math.cos(pa)*pt,y2:p.y+Math.sin(pa)*pt,c:'#ffd27a',u:tm+.07,w:1})}for(const s of hit){killHit(s,tm);gore(s,ang,tm,true)}return}
@@ -821,7 +821,7 @@ const bad=best.sur||best.t===2;if(bad){addScore(best.sur?-300:-200,best.x,best.y
 best.dead=true;best.dt=tm;best.cuffed=true;best.bn=0;kills++;bleed(best,tm);checkWin()}
 function shoot(s,tm){playShot();hearShot(s.x,s.y,280,tm,s);const a=s.a+(Math.random()-.5)*(s.w==='ar'?.36:.3),w=cast(s.x,s.y,a,400),dx=p.x-s.x,dy=p.y-s.y,pr=dx*Math.cos(a)+dy*Math.sin(a),pp=Math.abs(dx*Math.sin(a)-dy*Math.cos(a)),hit=pr>0&&pr<w&&pp<8,d=hit?pr:w;
 tr.push({x1:s.x+Math.cos(s.a)*(s.w==='ar'?25:18),y1:s.y+Math.sin(s.a)*(s.w==='ar'?25:18),x2:s.x+Math.cos(a)*d,y2:s.y+Math.sin(a)*d,c:'#ffd24a',u:tm+.09});
-if(hit){hp-=Math.round((s.w==='ar'?18:32)*LO_DMG);flash=.45;if(hp<=0){hp=0;coopPlayerDown('You were shot.')}}}
+if(hit){hp-=Math.round((s.w==='ar'?18:32)*LO_DMG);flash=.45;if(hp<=0){hp=0;coopPlayerDown(s.hostile?'The clerk shot you.':'You were shot.')}}}
 /* ---- Knife attacker (role 3): wanders its room, charges the player on sight, stabs at close range ---- */
 const KN_RUN=125,KN_WALK=32,KN_REACH=17,KN_WIND=.22,KN_DMG=45;
 function npcCollide(s){for(let k=0;k<2;k++)for(const g of segs){const sx=g[2]-g[0],sy=g[3]-g[1];let t=((s.x-g[0])*sx+(s.y-g[1])*sy)/(sx*sx+sy*sy);t=Math.max(0,Math.min(1,t));const qx=g[0]+sx*t,qy=g[1]+sy*t,dx=s.x-qx,dy=s.y-qy,d=Math.hypot(dx,dy),r=7;if(d<r&&d>0){s.x+=dx/d*(r-d);s.y+=dy/d*(r-d)}}}
@@ -887,12 +887,12 @@ if(s.cuffed){circ('#d2a679',-3.5,-2,1.5);circ('#d2a679',-3.5,2,1.5);rr('#c9d0d4'
 circ('#d2a679',0.5,0,4);circ(hair[i],-0.8,0,3.5);
 x.restore();if(s.cuffed){x.strokeStyle='#6aa7ff';x.lineWidth=1.5;x.beginPath();x.arc(s.x,s.y,10,0,7);x.stroke()}}
 let last=performance.now();
-function frame(t){pauseFadeTick(t);const dt=paused?0:Math.max(0,Math.min(.05,(t-last)/1000));last=t;fdt=dt;gt+=dt;for(const d of doors)d.anim=Math.max(0,Math.min(1,d.anim+(d.open?1:-1)*dt*3));
+function frame(t){pauseFadeTick(t);const dt=paused?0:Math.max(0,Math.min(.05,(t-last)/1000))*(lvl===GAS&&G&&G.qte?.15:1);last=t;fdt=dt;gt+=dt;for(const d of doors)d.anim=Math.max(0,Math.min(1,d.anim+(d.open?1:-1)*dt*3));
 const squad=op?(op.al2||op.al).map(i=>mates[i]).filter(m=>m&&!m.down):[],follow=squad.length>0,inside=roomAt(p.x,p.y)||udc||op,targetX=follow?squad.reduce((sum,m)=>sum+m.x,0)/squad.length:zoom>1&&!udc?p.x:inside?340:p.x<-100?Math.max(-100,320+(p.x+100)*1.65):320,targetY=follow?squad.reduce((sum,m)=>sum+m.y,0)/squad.length:zoom>1&&!udc?p.y:inside?240:210,tg=[inside?680:840,targetX,targetY],kc=1-Math.exp(-5*dt);cam.vw+=(tg[0]-cam.vw)*kc;cam.cx+=(tg[1]-cam.cx)*kc;cam.cy+=(tg[2]-cam.cy)*kc;
 const viewW=zoom===1?cam.vw:840/zoom,sc=420/viewW,tx=-sc*(cam.cx-viewW/2)+(shake>0?(Math.random()-.5)*shake*6:0),ty=-sc*(cam.cy-viewW*.357143)+(shake>0?(Math.random()-.5)*shake*6:0);shake=Math.max(0,shake-dt*3);x.setTransform(1,0,0,1,0,0);x.fillStyle='#05090b';x.fillRect(0,0,420,300);x.setTransform(sc,0,0,sc,tx,ty);o.setTransform(sc,0,0,sc,tx,ty);
 mx=cam.cx-viewW/2+fx*viewW;my=cam.cy-viewW*.357143+fy*viewW*.714286;if(udc&&(udc.d.open||won||lost))udc=null;if(!udc&&!sfxUdc.paused)sfxUdc.pause();if(udc){if(udc.input==='keyboard'){const pan=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);udc.f=Math.max(udc.base-.6,Math.min(udc.base+.6,udc.f+pan*1.2*dt))}else{const da=norm(Math.atan2(my-udc.cy,mx-udc.cx)-udc.base);udc.f=udc.base+Math.max(-.6,Math.min(.6,da))}}
 let vx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),vy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
-if((vx||vy)&&!won&&!lost&&!udc&&!pDown){const l=Math.hypot(vx,vy);p.x+=vx/l*110*LO_SPD*dt;p.y+=vy/l*110*LO_SPD*dt;collide()}
+if((vx||vy)&&!won&&!lost&&!udc&&!pDown&&!(lvl===GAS&&G&&G.qte)){const l=Math.hypot(vx,vy);p.x+=vx/l*110*LO_SPD*dt;p.y+=vy/l*110*LO_SPD*dt;collide()}
 const moving=(vx||vy)&&!won&&!lost&&!udc&&!paused,target=keyboardAim&&!won&&!lost&&!udc&&!paused?aimAssistTarget():null;if(mouseLook&&!won&&!lost&&!udc&&!paused)ang=Math.atan2(my-p.y,mx-p.x);else if(target)ang=Math.atan2(target.y-p.y,target.x-p.x);else if(moving)ang=Math.atan2(vy,vx);else if(!keyboardAim||won||lost||udc||paused)ang=Math.atan2(my-p.y,mx-p.x);{const aimed=(mouseLook&&!won&&!lost&&!udc&&!paused)||!!target||moving||!keyboardAim||won||lost||udc||paused;if(aimed)recoilIn=0;if(recoilOff||recoilIn){if(!paused)recoilOff*=Math.exp(-dt*7);if(Math.abs(recoilOff)<.002)recoilOff=0;ang+=recoilOff-recoilIn;recoilIn=recoilOff}}nowS=gt;if(reloadEnd&&nowS>=reloadEnd){if(reloadWep===2){if(mags>0){mags--;pAmmo=PCAP}}else{const t=Math.min(SG_CAP-ammo,sRes);ammo+=t;sRes-=t}reloadEnd=0}if(NET.mode==='client'&&NET.inMission){coopClientTick(dt)}else if(!won&&!lost&&!paused){tickTimer(dt);if(!lost)npcs(nowS,dt);updFb(dt,nowS);if(isHub()){hubPeopleTick(dt);inmateTick(dt);shTick()}updJobs(dt);updBreach();updMates(dt);updEsc(dt);lifeTick(dt);if(kick)updKick(dt);if(op)updOp(dt,nowS);if(stk)updStk(dt,nowS);if(heal)updHeal(dt,nowS)}if(trigM||keys[' ']||keys.f){if(wep===1&&LO.prim==='m4'&&!paused&&!menu&&!stk&&!udc&&nowS>=shotAt)coopFire()}else trigM=false;if(NET.mode==='host')coopHostTick(dt);if(NET.inStation)coopStationTick();
 scene();drawFb();drawDebris();
 o.globalCompositeOperation='source-over';o.fillStyle=udc?'rgba(0,0,0,1)':assist?'rgba(5,9,11,.82)':'rgba(5,9,11,.97)';o.fillRect(-4000,-4000,8000,8000);
@@ -1352,7 +1352,7 @@ const pts=GAS_BROWSE.slice().sort(()=>Math.random()-.5),n=2+(Math.random()<.5?1:
 const clerk=civ(380,180,Math.PI/2,{clerk:1,col:'#b8452e',st:'clerk'});sus=[clerk];
 for(let i=0;i<n;i++)sus.push(civ(pts[i][0],pts[i][1],Math.random()*6.28,{wait:nowS+1+Math.random()*4}));
 if(Math.random()<.7)sus.push(civ(220,214,Math.PI,{out:1}));
-G={on:false,alarm:0,arrive:0,wave:0,reg:0,safe:0,act:null,clerk,lastShot:shotT,shots:false,shotAlarm:0,civDead:0,won:0,lastSec:0,eTip:false,key:0};
+G={on:false,alarm:0,arrive:0,wave:0,reg:0,safe:0,act:null,clerk,lastShot:shotT,shots:false,shotAlarm:0,civDead:0,won:0,lastSec:0,eTip:false,key:0,gunPlan:Math.random()<.7,gunAt:.3+Math.random()*.4,gunDone:0,qte:null,dropGun:null};
 pSay='Walk in casual. Press 1 or 2 to draw when you\'re ready.';pSayU=nowS+4}
 function gasCover(s){if(wep===4||s.dead||s.gone)return false;const dx=s.x-p.x,dy=s.y-p.y,d=Math.hypot(dx,dy);if(d>240)return false;const a=Math.atan2(dy,dx);if(Math.abs(norm(a-ang))>(d<60?.6:.32))return false;return cast(p.x,p.y,a,d)>=d-1}
 function gasSees(s,r){const dx=p.x-s.x,dy=p.y-s.y,d=Math.hypot(dx,dy);return d<r&&cast(s.x,s.y,Math.atan2(dy,dx),d)>=d-1}
@@ -1391,6 +1391,7 @@ function gasActTick(dt){const a=G.act;if(!a)return;const t=a.k==='safe'?GAS_SAFE
 if(d>(a.k==='safe'?46:a.k==='search'?40:82)){G.act=null;pSay=a.k==='safe'?'Stay at the safe.':a.k==='search'?'Stay with the body to search it.':'Stay at the counter!';pSayU=nowS+1.4;return}
 if(a.k==='search'){a.p+=dt/a.dur;if(a.p>=1){G.act=null;G.key=1;pops.push({x:t.x,y:t.y-12,t:'SAFE KEY',c:'#e8c24a',u:nowS+1.6});pSay="Got the key to the manager's safe.";pSayU=nowS+1.8;try{uiSnd('click')}catch(e){}}return}
 if(a.k==='reg'&&!a.smash&&G.clerk.dead){G.act=null;pSay='The clerk is down. Do it yourself.';pSayU=nowS+1.4;return}
+if(G.qte)return;if(a.k==='reg'&&!a.smash&&G.gunPlan&&!G.gunDone&&a.p>=G.gunAt&&!G.clerk.dead&&!G.clerk.cuffed){gasQteStart();return}
 a.p+=dt/a.dur;if(a.p>=1){G.act=null;if(a.k==='safe'){G.safe=1;gasCash(1500+Math.random()*1300,t);pSay='Jackpot.';pSayU=nowS+1.2}else{G.reg=1;gasCash(250+Math.random()*400,t);if(!G.clerk.dead&&!G.clerk.cuffed){G.clerk.sur=true;gasSay(G.clerk,["That's all of it! I swear!",'Take it! Just go!'])}pSay='Got the register.';pSayU=nowS+1.2}}}
 function gasCarObj(){return yard.find(o=>o.k==='getaway')}
 function gasCarNear(){const o=gasCarObj();if(!o)return null;const r=o.r,dx=Math.max(r[0]-p.x,0,p.x-r[0]-r[2]),dy=Math.max(r[1]-p.y,0,p.y-r[1]-r[3]);return Math.hypot(dx,dy)<26?o:null}
@@ -1399,12 +1400,12 @@ const car=gasCarNear();if(car){if(score<=0){pSay="Not leaving empty-handed.";pSa
 {const c=G.clerk;if(!G.key&&!G.act&&c.dead&&Math.hypot(p.x-c.x,p.y-c.y)<28){G.act={k:'search',p:0,dur:2};pSay='Where is it...';pSayU=nowS+1.4;return true}}
 if(!G.reg&&!G.act&&Math.hypot(p.x-GAS_REG.x,p.y-GAS_REG.y)<70){const c=G.clerk;
  if(!G.on){pSay=['Pack of gum, please.','Just looking.','Pump four.'][Math.floor(Math.random()*3)];pSayU=nowS+1.2;if(!c.dead)gasSay(c,['Sure thing.',"That'll be a dollar fifty.",'Have a good night.']);return true}
- if(!c.dead&&!c.cuffed){G.act={k:'reg',p:0,dur:4};c.st='comply';c.alarmT=0;c.sur=false;c.cov=nowS;pSay='Open the register! Now!';pSayU=nowS+1.4;gasSay(c,['Okay! Okay!','Opening it, opening it!'],2);return true}
+ if(c.hostile&&!c.dead){pSay="He's still armed! Take him down!";pSayU=nowS+1.4;return true}if(!c.dead&&!c.cuffed){G.act={k:'reg',p:0,dur:4};c.st='comply';c.alarmT=0;c.sur=false;c.cov=nowS;pSay='Open the register! Now!';pSayU=nowS+1.4;gasSay(c,['Okay! Okay!','Opening it, opening it!'],2);return true}
  G.act={k:'reg',p:0,dur:7,smash:1};pSay="Guess I'll do it myself.";pSayU=nowS+1.4;return true}
 if(!G.safe&&!G.act&&Math.hypot(p.x-GAS_SAFE.x,p.y-GAS_SAFE.y)<40){if(!G.key){pSay='Locked tight. The clerk has the key.';pSayU=nowS+1.6;return true}G.act={k:'safe',p:0,dur:2.5};pSay='Come to papa.';pSayU=nowS+1.2;return true}
 const q=nearSus();if(q&&q.civ){if(!G.on){gasSay(q,['Evening.','Hey.','Cold out tonight.']);return true}q.cuffed=true;q.sur=false;q.st='tied';q.path=null;q.alarmT=0;gasSay(q,['Okay... okay...','Please, I have kids...','Mmph!']);try{playDoorMove(false)}catch(e){}return true}
 return false}
-function gasTick(dt){if(!G)return;
+function gasTick(dt){if(!G)return;gasQteTick();if(G.qte)return;
 if(shotT!==G.lastShot){G.lastShot=shotT;gasStart();G.shots=true;if(!G.alarm&&!G.shotAlarm)G.shotAlarm=nowS+2.5}
 if(G.shotAlarm&&!G.alarm&&nowS>G.shotAlarm)gasAlarm('Someone heard the gunshots and called 911.');
 if(!G.on&&wep!==4&&(roomAt(p.x,p.y)||sus.some(s=>s.civ&&!s.dead&&!s.gone&&gasSees(s,190))))gasStart();
@@ -1414,19 +1415,20 @@ if(G.alarm){const left=G.arrive-nowS,sec=Math.ceil(left);if(left>0&&sec!==G.last
  while(G.wave<GAS_WAVES.length&&nowS>=G.arrive+GAS_WAVES[G.wave].t){gasWave(GAS_WAVES[G.wave]);G.wave++}}}
 function gasTips(ti){G.eTip=false;if(!G)return ti;const e=(tx,ty,t)=>{tip(tx,ty-ti++*26,'E',t);G.eTip=true};
 if(gasCarNear()&&score>0)e(p.x,p.y-14,'Get away with $'+score);{const c=G.clerk;if(!G.key&&!G.act&&c.dead&&Math.hypot(p.x-c.x,p.y-c.y)<28)e(c.x,c.y-12,'Search the body for the safe key')}
-if(!G.eTip&&!G.reg&&!G.act&&Math.hypot(p.x-GAS_REG.x,p.y-GAS_REG.y)<70)e(GAS_REG.x,GAS_REG.y-12,!G.on?'Buy something':(!G.clerk.dead&&!G.clerk.cuffed?'Make the clerk empty the register':'Empty the register yourself'));
+if(!G.eTip&&!G.reg&&!G.act&&Math.hypot(p.x-GAS_REG.x,p.y-GAS_REG.y)<70)e(GAS_REG.x,GAS_REG.y-12,!G.on?'Buy something':(G.clerk.hostile&&!G.clerk.dead?'The clerk is armed!':!G.clerk.dead&&!G.clerk.cuffed?'Make the clerk empty the register':'Empty the register yourself'));
 if(!G.safe&&!G.act&&Math.hypot(p.x-GAS_SAFE.x,p.y-GAS_SAFE.y)<40)e(GAS_SAFE.x,GAS_SAFE.y-12,G.key?'Unlock the safe':'Locked (the clerk has the key)');
 return ti}
 function gasStatus(){if(!G.on)return 'Gas station · walk in holstered · draw (1 or 2) to start the robbery';return 'Cash $'+score+(G.alarm?(nowS<G.arrive?' · ALARM: cops in '+Math.ceil(G.arrive-nowS)+'s':' · POLICE ON SCENE')+' · get to the car':' · keep everyone covered (aim at them) · E: zip-tie')}
 /* HUD (half-scale screen space) */
 function gasTimer(){if(!G)return;let t,c,bg='rgba(10,10,14,.75)';if(!G.alarm){t=G.on?'NO ALARM YET':'CASING THE PLACE';c=G.on?'#e8c24a':'#4fd36e'}else if(nowS<G.arrive){const tl=Math.ceil(G.arrive-nowS);t='COPS IN '+Math.floor(tl/60)+':'+String(tl%60).padStart(2,'0');c='#ff6a5a';if(tl<=15&&Math.floor(nowS*4)%2)bg='rgba(130,12,12,.88)'}else{t='POLICE ON SCENE';c='#ffd0c0';bg=Math.floor(nowS*3)%2?'rgba(130,12,12,.88)':'rgba(20,30,90,.88)'}
 x.font='600 14px sans-serif';const w=x.measureText(t).width+16;x.fillStyle=bg;x.fillRect(8,34,Math.max(112,w),22);x.textAlign='left';x.textBaseline='middle';x.fillStyle=c;x.fillText(t,14,45)}
-function gasHud(){if(!G)return;const L=[[G.reg,'Cash from the register'],[G.key,"Safe key (on the clerk's body)"],[G.safe,"Manager's safe (bonus)"],[won,'Back to the car']];x.font='600 12px sans-serif';x.textAlign='left';x.textBaseline='middle';
+function gasHud(){if(!G)return;if(G.qte){gasQteHud();return}const L=[[G.reg,'Cash from the register'],[G.key,"Safe key (on the clerk's body)"],[G.safe,"Manager's safe (bonus)"],[won,'Back to the car']];x.font='600 12px sans-serif';x.textAlign='left';x.textBaseline='middle';
 L.forEach((q,k)=>{const y=70+k*17;x.fillStyle='rgba(10,10,14,.7)';x.fillRect(8,y-7,170,15);x.fillStyle=q[0]?'#4fd36e':'#9a9aa0';x.fillText((q[0]?'✓ ':'□ ')+q[1],14,y+.5)});
 if(G.act){const a=G.act,bw=220,bx=(W-bw)/2,by=H-92;x.fillStyle='rgba(10,10,14,.82)';x.fillRect(bx-8,by-22,bw+16,44);x.fillStyle='#d9d5c9';x.font='600 13px sans-serif';x.fillText(a.k==='safe'?'UNLOCKING THE SAFE':a.k==='search'?'SEARCHING THE BODY':a.smash?'PRYING THE REGISTER OPEN':'CLERK EMPTYING THE REGISTER',bx,by-10);x.fillStyle='#2a2a30';x.fillRect(bx,by,bw,12);x.fillStyle='#4fd36e';x.fillRect(bx,by,bw*Math.min(1,a.p),12)}}
 /* world-space markers over people: who is covered, who is about to call or hit the alarm */
 function gasRing(cx,cy,r,f,col){x.strokeStyle=col;x.lineWidth=1.6;x.beginPath();x.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.max(0,Math.min(1,f))*6.283);x.stroke()}
-function gasWorld(){if(!G||!G.on||won)return;{const c=G.clerk;if(!G.key&&c.dead&&canSee(c)){const pu=.5+.5*Math.sin(nowS*6);x.save();x.translate(c.x+8,c.y-8);x.globalAlpha=.55+.45*pu;circ('#e8c24a',0,0,2.2);circ('#1c1c1f',0,0,.9);rr('#e8c24a',1.6,-.6,5,1.2,.4);rr('#e8c24a',4.6,-.6,1,2.6,.3);x.restore()}}for(const s of sus){if(!s.civ||s.dead||s.gone||s.cuffed||!canSee(s))continue;
+function gasWorld(){if(G&&G.dropGun){const d=G.dropGun;x.save();x.translate(d.x,d.y);x.rotate(d.a);rr('#2a2a2e',-5,-1.5,10,3,1);rr('#2a2a2e',-5,0,3,4,1);x.restore()}if(G&&G.qte){const c=G.clerk,a=Math.atan2(p.y-c.y,p.x-c.x);x.save();x.translate(c.x,c.y);x.rotate(a);rr('#d2a679',4,-1.6,4,3.2,1.4);rr('#2a2a2e',7,-1.4,9,2.8,.8);x.restore();x.strokeStyle='rgba(255,60,60,.45)';x.lineWidth=.8;x.setLineDash([3,3]);x.beginPath();x.moveTo(c.x+Math.cos(a)*16,c.y+Math.sin(a)*16);x.lineTo(p.x,p.y);x.stroke();x.setLineDash([])}
+if(!G||!G.on||won)return;{const c=G.clerk;if(!G.key&&c.dead&&canSee(c)){const pu=.5+.5*Math.sin(nowS*6);x.save();x.translate(c.x+8,c.y-8);x.globalAlpha=.55+.45*pu;circ('#e8c24a',0,0,2.2);circ('#1c1c1f',0,0,.9);rr('#e8c24a',1.6,-.6,5,1.2,.4);rr('#e8c24a',4.6,-.6,1,2.6,.3);x.restore()}}for(const s of sus){if(!s.civ||s.dead||s.gone||s.cuffed||!canSee(s))continue;
 if(nowS-s.cov<.15)gasRing(s.x,s.y,10,1,'rgba(232,226,208,.55)');
 if(s.st==='hiding'&&s.callT)gasRing(s.x,s.y,12,1-(s.callT-nowS)/9,'#ff5a4a');
 else if(s.clerk&&s.st==='scared')gasRing(s.x,s.y,12,1-(s.alarmT-nowS)/4,'#ff5a4a');
@@ -1466,14 +1468,31 @@ for(const r of rooms)if(!r.on){x.fillStyle='rgba(10,10,14,.55)';x.fillRect(r.x,r
 function gasEndWin(){const clean=!G.alarm,pen=G.civDead*1000,fin=score+(clean?500:0)+hp-pen,rk=fin>=3000?'S':fin>=2200?'A':fin>=1400?'B':fin>=600?'C':'D',nb=recordWin(GAS,fin,rk,!G.civDead);
 eT.textContent=clean?'Clean getaway':'Got away';eT.style.color='#5fc77a';
 eS.textContent='You got away with $'+score+'. '+(clean?'Nobody called the cops (+500). ':'')+(G.civDead?G.civDead+' civilian'+(G.civDead>1?'s':'')+' killed (-'+pen+'). ':'')+'Score '+fin+(nb?' (new best!)':'')+', rank '+rk+'.'}
-function gasEndLoss(){recordLoss(GAS);eT.textContent='Busted';eT.style.color='#d94a3a';eS.textContent=G&&G.alarm?'The police took you down. Grab the cash faster and get to the car before backup arrives.':'You went down. Keep everyone covered and get out fast.'}
+function gasEndLoss(){recordLoss(GAS);const ck=lost.includes('clerk');eT.textContent=ck?'Shot by the clerk':'Busted';eT.style.color='#d94a3a';eS.textContent=ck?'He kept a pistol under the counter. When he goes for it, hit the keys on screen fast.':G&&G.alarm?'The police took you down. Grab the cash faster and get to the car before backup arrives.':'You went down. Keep everyone covered and get out fast.'}
 /* briefing */
+
+/* ---- the clerk goes for a gun under the counter: quick time event (time slows; type the keys shown before he fires) ---- */
+var QTE_KEYS=['W','A','S','D','E','F','Q','R','G','T'];
+function gasQteStart(){const c=G.clerk,seq=[];while(seq.length<3){const k=QTE_KEYS[Math.floor(Math.random()*QTE_KEYS.length)];if(seq[seq.length-1]!==k)seq.push(k)}
+G.gunDone=1;G.qte={seq,i:0,t0:performance.now(),dur:2300};c.sur=false;gasSay(c,['Get out of my store!','Not tonight!','Back off!'],2.5);shake=Math.max(shake,.4);beep(300);setTimeout(()=>beep(300),120)}
+function gasQteWin(){const c=G.clerk;G.qte=null;c.st='comply';c.sur=true;c.cov=nowS;G.dropGun={x:c.x+16,y:c.y+10,a:Math.random()*6};gasSay(c,['Ow! Okay! Okay!','My hand! Okay!'],1.8);pSay='Nice try.';pSayU=nowS+1.4;shake=Math.max(shake,.3);try{playHit()}catch(e){}}
+function gasQteFail(){const c=G.clerk;G.qte=null;G.act=null;try{playShot()}catch(e){}const a=Math.atan2(p.y-c.y,p.x-c.x);tr.push({x1:c.x+Math.cos(a)*12,y1:c.y+Math.sin(a)*12,x2:p.x,y2:p.y,c:'#ffd24a',u:nowS+.12});
+hp-=Math.round(55*LO_DMG);flash=.6;shake=Math.max(shake,.7);G.shots=true;if(!G.alarm&&!G.shotAlarm)G.shotAlarm=nowS+2.5;
+Object.assign(c,{civ:0,t:1,w:'pistol',hostile:1,sur:false,al:nowS+3,lx:p.x,ly:p.y,rt:nowS+1.1,cd:nowS+1.1});gasSay(c,['I said get out!','Get out!'],1.6);
+if(hp<=0){hp=0;coopPlayerDown('The clerk shot you.')}else{pSay='He shot me! Take him down!';pSayU=nowS+1.8}}
+function gasQteTick(){if(G.qte&&performance.now()-G.qte.t0>G.qte.dur)gasQteFail()}
+addEventListener('keydown',e=>{if(!(lvl===GAS&&G&&G.qte)||paused)return;e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;const k=e.key.toUpperCase();
+if(k===G.qte.seq[G.qte.i]){G.qte.i++;beep(900+G.qte.i*160);if(G.qte.i>=G.qte.seq.length)gasQteWin()}else if(k.length===1)gasQteFail()},true);
+function gasQteHud(){const q=G.qte;if(!q)return;const left=Math.max(0,1-(performance.now()-q.t0)/q.dur);x.fillStyle='rgba(120,0,0,'+(.18+.1*Math.sin(nowS*40))+')';x.fillRect(0,0,W,H);
+x.textAlign='center';x.textBaseline='middle';x.font='400 30px "Black Ops One",Impact,sans-serif';x.lineWidth=5;x.strokeStyle='rgba(0,0,0,.8)';x.strokeText('THE CLERK PULLED A GUN!',W/2,H/2-70);x.fillStyle='#ff5a4a';x.fillText('THE CLERK PULLED A GUN!',W/2,H/2-70);
+const bw=56,gap=14,x0=W/2-(q.seq.length*bw+(q.seq.length-1)*gap)/2;q.seq.forEach((k,i)=>{const bx=x0+i*(bw+gap),by=H/2-28,done=i<q.i,cur=i===q.i;x.fillStyle=done?'#4fd36e':cur?'#e8e2d0':'rgba(232,226,208,.35)';x.fillRect(bx,by,bw,bw);x.fillStyle='#14161a';x.fillRect(bx+3,by+3,bw-6,bw-6);x.fillStyle=done?'#4fd36e':cur?'#fff':'rgba(232,226,208,.5)';x.font='700 30px sans-serif';x.fillText(k,bx+bw/2,by+bw/2+1)});
+x.fillStyle='rgba(10,10,14,.8)';x.fillRect(W/2-150,H/2+42,300,12);x.fillStyle=left>.35?'#e8c24a':'#ff5a4a';x.fillRect(W/2-150,H/2+42,300*left,12);x.fillStyle='#e8e2d0';x.font='600 14px sans-serif';x.fillText('Press the keys in order before he fires',W/2,H/2+70)}
 function gasBrief(){if(NET.mode){$('lv-stats').textContent='Criminal missions are single-player for now.';return}brSel=GAS;const pick=a=>a[Math.floor(Math.random()*a.length)],hh=1+Math.floor(Math.random()*4),mm=Math.floor(Math.random()*60),nm=pick(['Quik Fuel','Gas-N-Go','Sunrise Fuel & Mart','Route 9 Gas','Lucky Stop','Pump & Munch']),area=pick(PL.areas);
 const P=brPlace={time:String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'),day:pick(PL.days),line1:nm,line2:area,short:'the '+nm};
 $('br-name').textContent='The Job: '+nm;$('br-loc').textContent=P.line1+' · '+P.line2+' · '+P.day+' '+P.time;
 $('br-sit').textContent='Rent is due. '+nm+' out on the edge of '+area+' keeps the night take in the register and a safe in the back office. One clerk, a couple of late customers, no guard. Get in, get the cash, and get back to the car before anyone calls it in.';
 const li=(el,items)=>{el.innerHTML='';for(const t of items){const n=document.createElement('li');n.textContent=t;el.appendChild(n)}};
-li($('br-intel'),['One clerk behind the counter. He has a silent alarm button, so cover him fast.','Two or three customers inside, maybe one more out at the pumps.','The register is on the counter. The manager\'s safe is in the back office, and the clerk carries the key. You will only get it off his body.','Once the alarm goes off, police arrive in '+GAS_RESP+' seconds, and backup keeps coming.']);
+li($('br-intel'),['One clerk behind the counter. He has a silent alarm button, so cover him fast. Word is he\'s jumpy: watch his hands at the register.','Two or three customers inside, maybe one more out at the pumps.','The register is on the counter. The manager\'s safe is in the back office, and the clerk carries the key. You will only get it off his body.','Once the alarm goes off, police arrive in '+GAS_RESP+' seconds, and backup keeps coming.']);
 li($('br-obj'),['Walk in holstered (4). Draw (1 or 2) when you are ready to start.','Aim at people to keep them covered: they freeze with their hands up. Zip-tie them (E) so they stay put.','Make the clerk empty the register (E at the counter).','Optional: search the clerk\'s body for the key (E) and unlock the manager\'s safe for a bigger take.','Get back to your car on the street (E) and drive off.']);
 $('br-roe').textContent='How it goes wrong: anyone who reaches the street, a customer calling from a hiding spot, the clerk\'s silent alarm, or a gunshot brings the police. Killing a civilian costs 1,000.';
 $('br-kit').textContent='Your kit: M37 pump shotgun, Glock-19, light vest, 2 medkits. Nothing traceable.';showUi('brief')}
@@ -2325,7 +2344,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-125609';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-134334';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
