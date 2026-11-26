@@ -1416,7 +1416,7 @@ gasActTick(dt);
 if(G.alarm){const left=G.arrive-nowS,sec=Math.ceil(left);if(left>0&&sec!==G.lastSec){G.lastSec=sec;if(sec<=10)beep(sec<=3?1250:880);if(sec===30||sec===15){pSay='Cops in '+sec+' seconds!';pSayU=nowS+1.5}}
  while(G.wave<GAS_WAVES.length&&nowS>=G.arrive+GAS_WAVES[G.wave].t){gasWave(GAS_WAVES[G.wave]);G.wave++}}}
 function gasTips(ti){G.eTip=false;if(!G)return ti;const e=(tx,ty,t)=>{tip(tx,ty-ti++*26,'E',t);G.eTip=true};
-if(gasCarNear()&&G.cash>0)e(p.x,p.y-14,'Get away with $'+G.cash);{const c=G.clerk;if(!G.key&&!G.act&&c.dead&&Math.hypot(p.x-c.x,p.y-c.y)<28)e(c.x,c.y-12,'Search the body for the safe key')}
+if(gasCarNear()&&G.cash>0)e(p.x,p.y-14,'Get away with $'+G.cash);{const c=G.clerk;if(!G.key&&!G.act&&c.dead&&Math.hypot(p.x-c.x,p.y-c.y)<28)e(c.x,c.y-12,'Search body')}
 if(!G.eTip&&!G.reg&&!G.act&&Math.hypot(p.x-GAS_REG.x,p.y-GAS_REG.y)<70)e(GAS_REG.x,GAS_REG.y-12,!G.on?'Buy something':(G.clerk.hostile&&!G.clerk.dead?'The clerk is armed!':!G.clerk.dead&&!G.clerk.cuffed?'Make the clerk empty the register':'Empty the register yourself'));
 if(!G.safe&&!G.act&&Math.hypot(p.x-GAS_SAFE.x,p.y-GAS_SAFE.y)<40)e(GAS_SAFE.x,GAS_SAFE.y-12,G.key?'Unlock the safe':'Locked (the clerk has the key)');
 return ti}
@@ -1576,7 +1576,7 @@ var GUNS=14,GS=null,GUN_PRICE=250,GUN_BUY={x:470,y:210};
 /* the stash: cash carried between criminal missions */
 function stash(){return SAVE.cash||0}
 function stashAdd(v){SAVE.cash=Math.max(0,stash()+v);saveWrite()}
-if(!SAVE.cashInit){SAVE.cashInit=1;const r=SAVE.lv&&SAVE.lv[12];if(r&&r.clears&&!SAVE.cash)SAVE.cash=600;saveWriteLocal()}
+if((SAVE.cashInit||0)<2){SAVE.cashInit=2;SAVE.cash=2061;saveWriteLocal()}
 function gunsLeft(){return stash()-(GS&&GS.bought&&!GS.paid?GUN_PRICE:0)}
 function hasShotgun(){return !!SAVE.shotgun}
 var GUNSL={fd:0,lockN:0,roles:[],
@@ -2533,7 +2533,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-153320';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-153839';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
