@@ -783,6 +783,11 @@ function toggleUdc(){if(isHub()){hubNoFire('No need for that.');return}if(LO.too
 function udcSees(s){const dx=s.x-udc.cx,dy=s.y-udc.cy,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx);return d<360&&Math.abs(norm(a-udc.f))<.96&&cast(udc.cx,udc.cy,a,d)>=d-1}
 function negTarget(){if(lvl===GAS||lvl===GUNS||lvl===SUPER)return null;let b=null,bd=240;for(const s of sus){if(s.t===0||s.cuffed||s.sur||s.neg>nowS||nowS<(s.blind||0)||nowS<(s.stun||0)||nowS<(s.nbU||0))continue;const d=Math.hypot(s.x-p.x,s.y-p.y);if(d<bd&&canSee(s)){bd=d;b=s}}return b}
 function bargain(){if(won||lost)return;const s=negTarget();if(!s)return;s.neg=nowS+1.6;pSay='Drop it! Hands up!';pSayU=nowS+1.6}
+/* the player's own lines: a caption box at the top centre of the screen (half-scale HUD space) */
+function drawPSay(){if(!(nowS<pSayU)||!pSay)return;const left=pSayU-nowS,al=Math.min(1,left/.3);x.save();x.globalAlpha=al;x.font='600 15px sans-serif';x.textAlign='left';x.textBaseline='middle';
+const maxW=W-520,words=String(pSay).split(' '),L=[];let cur='';for(const wd of words){const t=cur?cur+' '+wd:wd;if(cur&&x.measureText(t).width>maxW){L.push(cur);cur=wd}else cur=t}if(cur)L.push(cur);
+const lw=Math.max(...L.map(t=>x.measureText(t).width)),w=lw+28,h=L.length*19+10,bx=(W-w)/2,by=lvl===0&&!won&&!lost&&tutStep()<9?50:8;
+x.fillStyle='rgba(10,10,14,.82)';x.fillRect(bx,by,w,h);x.fillStyle='#e8c24a';x.fillRect(bx,by,4,h);x.fillStyle='#f0ece0';L.forEach((t,k)=>x.fillText(t,bx+16,by+5+9.5+k*19));x.restore()}
 function bubble(ax,ay,t){x.font='600 14px sans-serif';const w=x.measureText(t).width+10,bx=Math.max(4-OX,Math.min(W-OX-w-4,ax-w/2)),by=Math.max(4-OY,ay-24);x.fillStyle='#d9d5c9';x.fillRect(bx,by,w,18);x.fillStyle='#1c1c1f';x.textAlign='center';x.textBaseline='middle';x.fillText(t,bx+w/2,by+10)}
 function reload(){if(wep===3||wep===4)return;if(won||lost||reloadEnd||(wep===2?pAmmo>=PCAP:ammo>=SG_CAP))return;if(wep===2?mags<=0:sRes<=0){pSay='Out of '+(wep===2?(LO.side==='magnum'?'speedloaders':'magazines'):isRif(LO.prim)?'rifle ammo':'shells');pSayU=nowS+1;return}reloadWep=wep;reloadEnd=nowS+(wep===2?(LO.side==='magnum'?2:LO.side==='pepper'?1.2:1.1):isRif(LO.prim)?2:1.5);if(wep===2||isRif(LO.prim))playReload()}
 const eEl=document.getElementById('end'),eT=document.getElementById('et'),eS=document.getElementById('es');document.getElementById('rt').onclick=()=>{if(NET.mode)coopRetry();else reset()};
@@ -911,7 +916,7 @@ if(!udc){for(let i=0;i<mates.length;i++)if(lvl!==HUB_B&&lvl!==HUB_U)mate(mates[i
 if(heal&&heal.st===1&&!udc){x.fillStyle='#4fd36e';x.fillRect(p.x-1.5,p.y-19,3,9);x.fillRect(p.x-4.5,p.y-16,9,3)}
 
 if(udc){x.fillStyle='rgba(60,255,140,.1)';polyAt(x,udc.cx,udc.cy,udc.f-.96,udc.f+.96,120,360);circ('#3cff8a',udc.cx,udc.cy,2.5)}
-if(!udc&&nowS<pSayU)bubble(p.x,p.y-10,pSay);for(const s of sus)if(!s.loaded&&nowS<(s.sayU||0)&&(udc?udcSees(s):(s.cuffed||canSee(s))))bubble(s.x,s.y-12,s.say);mates.forEach((m,i)=>{if(m.sayU&&m.sayU!==m.cu&&nowS<m.sayU){m.cu=m.sayU;comms.push({i,t:m.say,u:nowS+4})}});drawMenu();
+for(const s of sus)if(!s.loaded&&nowS<(s.sayU||0)&&(udc?udcSees(s):(s.cuffed||canSee(s))))bubble(s.x,s.y-12,s.say);mates.forEach((m,i)=>{if(m.sayU&&m.sayU!==m.cu&&nowS<m.sayU){m.cu=m.sayU;comms.push({i,t:m.say,u:nowS+4})}});drawMenu();
 pops=pops.filter(q=>nowS<q.u);if(!udc){x.font='700 16px sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';for(const q of pops){const k=1-(q.u-nowS)/1.4;x.lineWidth=3;x.strokeStyle='rgba(8,8,12,.85)';x.strokeText(q.t,q.x,q.y-k*14);x.fillStyle=q.c;x.fillText(q.t,q.x,q.y-k*14)}}
 if(flash>0){x.fillStyle='rgba(170,0,0,'+flash+')';x.fillRect(-OX,-OY,W,H);flash-=dt}drawBoom();if(wf>0){x.fillStyle='rgba(255,255,255,'+Math.min(1,wf)+')';x.fillRect(-OX,-OY,W,H);wf-=dt*.8}
 
@@ -925,6 +930,7 @@ const alive=sus.filter(q=>!q.dead),ld=alive.filter(q=>q.loaded).length,cf=alive.
 if(lvl===HOME)m='Home \u00b7 free roam \u00b7 E at the marked spots \u00b7 plan a job in the kitchen, gear up at the bedroom closet';else if(isHub())m='Police Station \u00b7 free roam \u00b7 '+(lvl===HUB_B?'basement':lvl===HUB_U?'training floor (live fire)':'ground floor')+' \u00b7 E at the marked spots \u00b7 stairs in the stairwell';if(lvl===GAS&&G)m=gasStatus();if(lvl===GUNS&&GS)m=gunsStatus();if(lvl===SUPER&&SM)m=superStatus();if(won)m=lvl===SUPER?'You got away with $'+(SM?SM.cash:0)+'.':lvl===GUNS?'Got the shotgun. Heading home.':lvl===GAS?'You got away with $'+(G?G.cash:0)+'.':'Everyone is in a police car. Mission complete.';
 if(lost)m=lost;
 x.setTransform(.5,0,0,.5,0,0);if(st.textContent!==m)st.textContent=m;
+drawPSay();
 if(lvl===0&&!won&&!lost&&!paused&&!udc){const ts=tutStep();if(ts<9){x.font='600 14px sans-serif';x.textAlign='left';x.textBaseline='middle';const t=tutLine(ts),bd=(ts+1)+'/9',bdw=x.measureText(bd).width,w=bdw+x.measureText(t).width+36,bx=(W-w)/2;x.fillStyle='rgba(10,10,14,.82)';x.fillRect(bx,8,w,22);x.fillStyle='#e07a2a';x.fillRect(bx,8,4,22);x.fillText(bd,bx+12,19);x.fillStyle='#eee';x.fillText(t,bx+bdw+22,19);x.fillStyle='rgba(200,200,200,.6)';x.font='500 12px sans-serif';x.textAlign='center';x.fillText('Tab to skip this step',W/2,40)}}
 drawKickUI();if(lvl===GAS)gasHud();if(lvl===GUNS)gunsHud();if(lvl===SUPER)superHud();if(stk&&stk.ready&&!udc){const bw=240,bx=(W-bw)/2,by=H-62;x.fillStyle='rgba(10,10,14,.8)';x.fillRect(bx-8,by-22,bw+16,48);x.font='600 14px sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillStyle='#d9d5c9';x.fillText('BATTERING RAM',bx,by-11);
 for(let i=0;i<3;i++){x.fillStyle=i<stk.prog?'#e07a2a':'#3a3a40';x.fillRect(bx+bw-44+i*15,by-17,12,12)}
@@ -2769,7 +2775,7 @@ for(let i=0;i<60;i++){t+=1/30;step(1/30)}requestAnimationFrame(loop)})();
 showMain();reset();requestAnimationFrame(frame);
 /* ---- New-version notice: the published site has a version.json; when it changes, offer a reload (saved progress is untouched).
    publish.sh replaces 'dev' below with the build stamp it also writes into version.json. ---- */
-(()=>{const BUILD='20261126-211142';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
+(()=>{const BUILD='20261126-211904';if(BUILD==='dev'||!/^https?:$/.test(location.protocol))return;let shown=false;
 const check=()=>{if(shown)return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.build||j.build===BUILD||shown)return;shown=true;const b=document.createElement('div');b.id='upd';b.setAttribute('role','status');b.innerHTML='<span>A new version of Dynamic Entry is out. Your progress is saved.</span><button type="button">Reload now</button><button type="button" class="x">Later</button>';b.querySelector('button').onclick=()=>location.reload();b.querySelector('.x').onclick=()=>b.remove();document.body.appendChild(b)}).catch(()=>{})};
 setTimeout(check,4000);setInterval(check,5*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
 </script></body></html>
